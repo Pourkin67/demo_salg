@@ -1,0 +1,1236 @@
+<!doctype html>
+<html lang="no">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#4F6851">
+<meta name="robots" content="noindex,nofollow">
+<title>Rådgiverassistenten · ODIN Forvaltning</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+html, body { margin: 0; padding: 0; }
+img { max-width: 100%; }
+</style>
+<style>
+/* Layout: arbeidsbenk. Venstre spalte = rådgiverens forespørsel og kontroller, høyre = Claudes ferdige dokument på "papir". */
+:root {
+  --bg: #FEF9F2;
+  --surface: #FFFDF9;
+  --sunk: #F3EDE3;
+  --ink: #1A1D1A;
+  --muted: #5E655E;
+  --line: #E2DACD;
+  --accent: #4F6851;
+  --accent-ink: #FEF9F2;
+  --accent-soft: #E6ECE3;
+  --peer1: #7A7F78;
+  --peer2: #B3AE9F;
+  --peer3: #8E9DA1;
+  --peer4: #BF9A6E;
+  --cat: #6B6F68;
+  --pos: #2F7048;
+  --neg: #A8432F;
+  --font-ui: "ABC Laica", "Hanken Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --font-doc: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --r: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141814; --surface: #1B211C; --sunk: #222922; --ink: #EEEAE2; --muted: #A3A99F; --line: #313A32;
+    --accent: #9DBB9F; --accent-ink: #141814; --accent-soft: #263127; --peer1: #8E928B; --peer2: #5F6359; --peer3: #6F7D80; --peer4: #9C7E5A; --cat: #B5B9AF;
+    --pos: #7FC593; --neg: #E5917F; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #141814; --surface: #1B211C; --sunk: #222922; --ink: #EEEAE2; --muted: #A3A99F; --line: #313A32;
+    --accent: #9DBB9F; --accent-ink: #141814; --accent-soft: #263127; --peer1: #8E928B; --peer2: #5F6359; --peer3: #6F7D80; --peer4: #9C7E5A; --cat: #B5B9AF;
+    --pos: #7FC593; --neg: #E5917F; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-ui); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+a { color: var(--accent); }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+h1, h2, h3 { text-wrap: balance; margin: 0; }
+.mono { font-family: var(--font-mono); }
+.eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+
+/* Header */
+header.top { padding-block: 40px 28px; }
+header.top .wrap { display: grid; gap: 14px; }
+header.top h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; font-weight: 700; letter-spacing: -.01em; max-width: 22ch; }
+header.top p.lead { margin: 0; max-width: 68ch; color: var(--muted); font-size: 16.5px; }
+.facts { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 6px; }
+.facts div { display: flex; align-items: baseline; gap: 8px; }
+.facts b { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.facts span { color: var(--muted); font-size: 14px; }
+.banner { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; background: var(--sunk); border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; color: var(--muted); width: fit-content; }
+.banner i { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); display: inline-block; }
+
+/* Tabs */
+nav.tabs { border-bottom: 1px solid var(--line); position: sticky; top: env(safe-area-inset-top, 0px); background: var(--bg); z-index: 5; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+nav.tabs .wrap { display: flex; gap: 4px; overflow-x: auto; }
+.tab { appearance: none; border: 0; background: none; font: inherit; color: var(--muted); padding: 14px 14px 12px; border-bottom: 3px solid transparent; cursor: pointer; white-space: nowrap; display: grid; gap: 1px; text-align: left; }
+.tab b { font-weight: 600; font-size: 15.5px; color: inherit; }
+.tab small { font-size: 12.5px; }
+.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+.tab:hover { color: var(--ink); }
+
+/* Panels */
+main { padding-block: 28px 56px; }
+.panel { display: grid; grid-template-columns: minmax(0, 330px) minmax(0, 1fr); gap: 28px; align-items: start; }
+@media (max-width: 920px) { .panel { grid-template-columns: minmax(0, 1fr); } }
+.side { display: grid; gap: 18px; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 76px); }
+@media (max-width: 920px) { .side { position: static; } }
+.side h3 { font-size: 12px; font-family: var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 500; margin-bottom: 8px; }
+.ask { background: var(--accent-soft); border-radius: var(--r); padding: 16px 18px; font-size: 15.5px; position: relative; }
+.ask .who { font-size: 12.5px; color: var(--muted); margin-bottom: 6px; display: block; }
+.ask p { margin: 0; }
+.list { list-style: none; padding: 0; margin: 0; display: grid; gap: 7px; font-size: 14px; }
+.list li { display: grid; grid-template-columns: 16px minmax(0, 1fr); gap: 8px; align-items: start; }
+.list li::before { content: ""; width: 7px; height: 7px; border-radius: 2px; background: var(--peer1); margin-top: 7px; }
+.checks li::before { content: "✓"; width: auto; height: auto; background: none; color: var(--pos); font-weight: 700; margin-top: 0; }
+.list a { text-decoration: none; }
+.list a:hover { text-decoration: underline; }
+
+/* Paper */
+.paper { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); box-shadow: 0 1px 2px rgba(26,29,26,.05), 0 8px 28px -12px rgba(26,29,26,.14); min-width: 0; }
+.paper-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 20px; border-bottom: 1px solid var(--line); }
+.paper-head .eyebrow { color: var(--muted); }
+.pill { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: .04em; border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; color: var(--muted); }
+.paper-body { padding: 24px clamp(18px, 4vw, 40px) 32px; }
+.doc { font-family: var(--font-doc); font-size: 16.5px; line-height: 1.62; max-width: 70ch; }
+.doc p { margin: 0 0 14px; }
+.doc h2 { font-family: var(--font-ui); font-size: 22px; font-weight: 700; margin: 0 0 6px; }
+.doc h3 { font-family: var(--font-ui); font-size: 15.5px; font-weight: 600; margin: 22px 0 8px; }
+.doc ul { margin: 0 0 14px; padding-left: 20px; }
+.doc li { margin-bottom: 6px; }
+.doc .fine { font-size: 13.5px; color: var(--muted); }
+.meta { font-family: var(--font-ui); font-size: 14px; display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 4px 14px; padding-bottom: 16px; margin-bottom: 20px; border-bottom: 1px dashed var(--line); }
+.meta dt { color: var(--muted); }
+.meta dd { margin: 0; }
+.attach { display: flex; flex-wrap: wrap; gap: 6px; }
+.attach span { font-size: 12.5px; background: var(--sunk); border-radius: 6px; padding: 2px 8px; }
+.btn { appearance: none; font: inherit; font-size: 13.5px; font-weight: 600; border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink); border-radius: 8px; padding: 6px 12px; cursor: pointer; }
+.btn.ghost { background: transparent; color: var(--accent); }
+
+/* Tables */
+.tbl-wrap { overflow-x: auto; margin: 6px 0 16px; }
+table { border-collapse: collapse; width: 100%; font-family: var(--font-ui); font-size: 13.5px; font-variant-numeric: tabular-nums; }
+th, td { padding: 7px 10px; text-align: right; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; }
+thead th { font-weight: 600; color: var(--muted); font-size: 12.5px; border-bottom: 1.5px solid var(--ink); }
+tr.own td { font-weight: 600; }
+tr.own td:first-child { box-shadow: inset 3px 0 0 var(--accent); padding-left: 12px; }
+tr.cat td { color: var(--muted); font-style: italic; }
+td.neg { color: var(--neg); }
+td.best { background: var(--accent-soft); }
+caption { caption-side: bottom; text-align: left; font-size: 12.5px; color: var(--muted); padding-top: 8px; }
+
+/* Comparison */
+.seg { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
+.seg button { appearance: none; font: inherit; font-size: 14px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 6px 14px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.summary { font-family: var(--font-doc); font-size: 18px; line-height: 1.55; margin: 4px 0 18px; max-width: 66ch; }
+.chart { width: 100%; overflow-x: auto; }
+.chart svg { display: block; width: 100%; min-width: 520px; height: auto; }
+.chart text { font-family: var(--font-ui); }
+.proscons { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; margin: 8px 0 18px; }
+.pc { border-top: 2px solid var(--line); padding-top: 10px; min-width: 0; }
+.pc.own { border-top-color: var(--accent); }
+.pc h4 { margin: 0 0 8px; font-size: 15px; }
+.pc ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 7px; font-size: 14px; line-height: 1.45; }
+.pc li { display: grid; grid-template-columns: 14px minmax(0, 1fr); gap: 6px; }
+.pc li b { font-weight: 700; }
+.pc li.p b { color: var(--pos); }
+.pc li.m b { color: var(--neg); }
+.box { background: var(--sunk); border-radius: 8px; padding: 14px 16px; font-size: 14.5px; margin: 6px 0 16px; }
+.box p { margin: 0; }
+.k { font-family: var(--font-ui); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin: 22px 0 8px; }
+
+/* Risiko */
+.risk-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; margin: 30px 0 4px; padding-top: 18px; border-top: 1.5px solid var(--ink); }
+.risk-head h3 { font-family: var(--font-ui); font-size: 18px; font-weight: 700; }
+.risk-head span { font-size: 13.5px; color: var(--muted); }
+table.corr td, table.corr th { text-align: center; padding: 6px 5px; min-width: 50px; }
+table.corr thead th { white-space: normal; font-size: 12px; line-height: 1.25; vertical-align: bottom; }
+#cmp-table td:first-child, #cmp-dd td:first-child, #cmp-risk td:first-child { white-space: normal; min-width: 130px; }
+#cmp-table thead th, #cmp-dd thead th, #cmp-risk thead th { white-space: normal; vertical-align: bottom; line-height: 1.25; }
+table.corr th:first-child, table.corr td:first-child { text-align: left; }
+table.corr td.c { color: var(--ink); }
+table.corr tr.dim td, table.corr td.dim { opacity: .42; }
+table.corr td.self { color: var(--muted); }
+.rc { display: grid; gap: 10px; margin: 4px 0 8px; }
+.rc-port { display: grid; gap: 8px; padding: 12px 0 14px; border-bottom: 1px dashed var(--line); }
+.rc-port:last-child { border-bottom: 0; }
+.rc-port h4 { margin: 0; font-size: 14.5px; font-weight: 600; }
+.rc-row { display: grid; grid-template-columns: minmax(0, 170px) minmax(0, 1fr); gap: 4px 12px; align-items: center; font-size: 13.5px; }
+@media (max-width: 560px) { .rc-row { grid-template-columns: minmax(0, 1fr); } }
+.rc-bars { display: grid; gap: 3px; }
+.rc-bar { display: grid; grid-template-columns: 74px minmax(0, 1fr) 52px; gap: 8px; align-items: center; font-variant-numeric: tabular-nums; }
+.rc-bar small { color: var(--muted); font-size: 12px; }
+.rc-bar i { display: block; height: 9px; border-radius: 2px; background: var(--peer2); }
+.rc-bar.risk i { background: var(--accent); }
+.rc-bar b { font-weight: 600; text-align: right; }
+.rc-sum { font-size: 13.5px; color: var(--muted); margin: 2px 0 0; }
+.rc-sum strong { color: var(--ink); font-weight: 600; }
+
+/* Simulering */
+.sim-ctl { display: grid; gap: 16px; background: var(--sunk); border-radius: 8px; padding: 16px 18px; margin: 4px 0 22px; font-family: var(--font-ui); }
+.sim-rows { display: grid; gap: 10px; }
+.sim-row { display: grid; grid-template-columns: minmax(0, 210px) minmax(0, 1fr) 52px; gap: 6px 12px; align-items: center; font-size: 14px; }
+.sim-row label, .sim-row .nm { display: grid; line-height: 1.25; }
+.sim-row small { color: var(--muted); font-size: 12px; }
+.sim-row output { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+.sim-row input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
+.sim-fill { height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; }
+.sim-fill i { display: block; height: 100%; background: var(--peer1); }
+@media (max-width: 560px) {
+  .sim-row { grid-template-columns: minmax(0, 1fr) 52px; }
+  .sim-row input[type="range"], .sim-row .sim-fill { grid-column: 1 / -1; grid-row: 2; }
+}
+.sim-inputs { display: flex; flex-wrap: wrap; gap: 14px 28px; align-items: end; border-top: 1px solid var(--line); padding-top: 14px; }
+.sim-inputs label, .sim-inputs .grp { display: grid; gap: 5px; font-size: 13px; color: var(--muted); }
+.sim-inputs input[type="number"] { font: inherit; font-size: 15px; width: 130px; padding: 6px 9px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink); font-variant-numeric: tabular-nums; }
+.sim-h { display: flex; gap: 10px; align-items: center; color: var(--ink); font-size: 14px; }
+.sim-h input { width: 190px; max-width: 52vw; accent-color: var(--accent); margin: 0; }
+.sim-h output { font-weight: 600; min-width: 44px; font-variant-numeric: tabular-nums; }
+.sim-inputs .seg button { font-size: 13.5px; padding: 5px 12px; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin: 6px 0 18px; font-family: var(--font-ui); }
+.tile { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; display: grid; gap: 2px; align-content: start; min-width: 0; }
+.tile small { font-size: 12.5px; color: var(--muted); }
+.tile b { font-size: 21px; font-weight: 700; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.tile span { font-size: 12.5px; color: var(--muted); }
+.warn { border-left: 3px solid var(--accent); background: var(--accent-soft); padding: 8px 12px; border-radius: 0 6px 6px 0; font-size: 13.5px; margin: 10px 0 12px; max-width: 80ch; }
+tr.dim td { opacity: .45; }
+table.tight th, table.tight td { padding-left: 7px; padding-right: 7px; }
+tr.sum td { font-weight: 600; border-top: 1.5px solid var(--ink); }
+.fine-list { margin: 0; padding-left: 18px; display: grid; gap: 6px; font-size: 13px; color: var(--muted); max-width: 82ch; }
+
+/* ODIN-merke */
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 17px; letter-spacing: .01em; color: var(--accent); }
+.brand i { width: 22px; height: 22px; border-radius: 50%; background: var(--accent); display: inline-block; box-shadow: 9px 0 0 -3px var(--accent-soft); }
+
+/* Footer */
+footer.how { border-top: 1px solid var(--line); padding-block: 36px 48px; }
+footer.how .wrap { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 28px; }
+footer.how h2 { font-size: 18px; margin-bottom: 10px; }
+footer.how p, footer.how li { font-size: 14px; color: var(--muted); }
+footer.how ol { padding-left: 20px; margin: 0; display: grid; gap: 6px; }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(env(safe-area-inset-bottom, 0px) + 20px); background: var(--ink); color: var(--bg); padding: 8px 14px; border-radius: 8px; font-size: 14px; }
+@media (prefers-reduced-motion: no-preference) {
+  .panel:not([hidden]) { animation: rise .25s ease-out; }
+  @keyframes rise { from { transform: translateY(4px); } to { transform: none; } }
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="brand"><i></i><span>ODIN Forvaltning</span></div>
+    <span class="banner"><i></i> Intern demo · laget av Claude fra offentlige kilder · ikke kundemateriell</span>
+    <h1>Fire oppgaver fra rådgivernes hverdag, løst med Claude</h1>
+    <p class="lead">Eksemplene under bygger på offentlige faktaark og fondskommentarer for ODIN Norge, ODIN Norden, SpareBank 1 Norge Verdi og ODIN Norsk Obligasjon, på Morningstar-data for sammenligningsfondene og på Finans Norges bransjeavtale om avkastningsprognoser. Tallene er ekte og har kilde og dato. Kundesituasjonene er oppdiktet.</p>
+    <div class="facts">
+      <div><b>4</b><span>egne fond</span></div>
+      <div><b>12</b><span>sammenligningsfond</span></div>
+      <div><b id="n-src">22</b><span>offentlige kilder</span></div>
+      <div><span>Data per</span><b class="mono" style="font-size:18px">30.09.2026</b></div>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs" aria-label="Eksempler">
+  <div class="wrap" role="tablist">
+    <button class="tab" role="tab" id="tab-mail" aria-controls="mail" aria-selected="true"><b>Oppfølgingsmail</b><small>Etter et kundemøte</small></button>
+    <button class="tab" role="tab" id="tab-sammenligning" aria-controls="sammenligning" aria-selected="false"><b>Fondssammenligning</b><small>Fond mot fond</small></button>
+    <button class="tab" role="tab" id="tab-marked" aria-controls="marked" aria-selected="false"><b>Markedsoppdatering</b><small>Fra fondskommentarene</small></button>
+    <button class="tab" role="tab" id="tab-simulering" aria-controls="simulering" aria-selected="false"><b>Porteføljesimulering</b><small>For institusjonelle</small></button>
+  </div>
+</nav>
+
+<main class="wrap">
+
+  <!-- ============ OPPFØLGINGSMAIL ============ -->
+  <section class="panel" id="mail" role="tabpanel" aria-labelledby="tab-mail">
+    <aside class="side">
+      <div>
+        <h3>Rådgiveren skriver</h3>
+        <div class="ask"><span class="who">Rett etter møtet, fra mobilen</span>
+          <p>«Møte med daglig leder i en mellomstor stiftelse. De vurderer å øke andelen norske aksjer, og spurte om forskjellen på ODIN Norge og SpareBank 1 Norge Verdi, og hva det koster. Lag en oppfølgingsmail med siste tall.»</p>
+        </div>
+      </div>
+      <div>
+        <h3>Claude brukte</h3>
+        <ul class="list">
+          <li><a href="https://odinfond.no/funds/files/980146618/no/fund-NO0008000379/comment/M%C3%A5nedlig%20Faktaark.pdf" target="_blank" rel="noopener">Månedlig faktaark ODIN Norge C, 30.09.2026</a></li>
+          <li><a href="https://odinfond.no/funds/files/920156886/no/fund-NO0010814411/comment/M%C3%A5nedlig%20Faktaark.pdf" target="_blank" rel="noopener">Månedlig faktaark SpareBank 1 Norge Verdi C, 30.09.2026</a></li>
+          <li><a href="https://odinfond.no/funds/files/980146618/no/comment/M%C3%A5nedskommentar.pdf" target="_blank" rel="noopener">Månedskommentar ODIN Norge, september</a></li>
+          <li><a href="https://odinfond.no/funds/files/920156886/no/comment/M%C3%A5nedskommentar.pdf" target="_blank" rel="noopener">Månedskommentar SpareBank 1 Norge Verdi, september</a></li>
+          <li><a href="https://odinfond.no/fond/sparebank-1-norge-verdi-b/" target="_blank" rel="noopener">Fondsside SpareBank 1 Norge Verdi B (andelsklasse)</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Claude sjekket</h3>
+        <ul class="list checks">
+          <li>Samme andelsklasse (C), samme dato og samme referanseindeks for begge fond</li>
+          <li>Hvert tall kommer fra faktaarkene per 30.09.2026</li>
+          <li>Svakheter er med, ikke bare styrker</li>
+          <li>Standard forbehold om historisk avkastning</li>
+          <li>Utkastet sendes ikke automatisk</li>
+        </ul>
+      </div>
+    </aside>
+
+    <article class="paper">
+      <div class="paper-head">
+        <span class="eyebrow">E-postutkast</span>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <span class="pill">Utkast · ikke sendt</span>
+          <button class="btn" id="copy-mail" type="button">Kopier tekst</button>
+        </div>
+      </div>
+      <div class="paper-body">
+        <div class="doc" id="mail-doc">
+          <dl class="meta">
+            <dt>Til</dt><dd>[Daglig leder], [stiftelse]</dd>
+            <dt>Emne</dt><dd>Oppfølging fra møtet: ODIN Norge og SpareBank 1 Norge Verdi</dd>
+            <dt>Vedlegg</dt><dd class="attach"><span>Faktaark ODIN Norge C 30.09.2026</span><span>Faktaark SpareBank 1 Norge Verdi C 30.09.2026</span><span>Månedskommentarer september</span></dd>
+          </dl>
+          <p>Hei [navn],</p>
+          <p>Takk for et godt møte i dag. Som lovet får du her en kort oversikt over de to norske aksjefondene vi snakket om.</p>
+          <h3>Forskjellen på fondene</h3>
+          <p>Begge fondene investerer i norske aksjer uavhengig av indeksvekter, og måles mot samme referanseindeks, Oslo Børs Fondindeks. <strong>ODIN Norge</strong> er et konsentrert fond med 25–35 selskaper i tre grupper: selskaper med sterke posisjoner i hjemmemarkedet, globale selskaper i attraktive råvaremarkeder med gode kostnadsposisjoner, og selskaper med unike teknologiposisjoner i nisjemarkeder. <strong>SpareBank 1 Norge Verdi</strong> er verdiorientert og ser etter selskaper med sterke markedsposisjoner, solide balanser og god kontantstrøm.</p>
+          <h3>Nøkkeltall per 30.09.2026</h3>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Avkastning</th><th>ODIN Norge</th><th>SpareBank 1 Norge Verdi</th><th>Oslo Børs Fondindeks</th></tr></thead>
+              <tbody>
+                <tr><td>Hittil i år</td><td>13,58 %</td><td>15,82 %</td><td>21,67 %</td></tr>
+                <tr><td>3 år, per år</td><td>19,25 %</td><td>21,31 %</td><td>18,68 %</td></tr>
+                <tr><td>5 år, per år</td><td>12,69 %</td><td>16,90 %</td><td>11,64 %</td></tr>
+                <tr><td>10 år, per år</td><td>13,01 %</td><td>startet 2019</td><td>12,46 %</td></tr>
+                <tr><td>Forvaltningskapital</td><td>18,7 mrd. kr</td><td>12,0 mrd. kr</td><td></td></tr>
+              </tbody>
+              <caption>Andelsklasse C. Kilde: fondenes månedlige faktaark per 30.09.2026.</caption>
+            </table>
+          </div>
+          <h3>Det vi vil fremheve</h3>
+          <ul>
+            <li>Begge fondene har slått referanseindeksen over 3 og 5 år. SpareBank 1 Norge Verdi har ligget 5,3 prosentpoeng over indeksen per år de siste fem årene.</li>
+            <li>ODIN Norge har også slått indeksen over 10 år, med 13,01 % mot 12,46 % per år.</li>
+            <li>I år ligger begge bak indeksen. De største negative bidragene hittil i år har vært Vend Marketplaces og Link Mobility i ODIN Norge, og Vend Marketplaces og Mowi i SpareBank 1 Norge Verdi.</li>
+          </ul>
+          <h3>Kostnader</h3>
+          <p>Andelsklassene i tabellen har 1,50 % årlig forvaltningshonorar. For større investorer finnes andelsklasser med lavere honorar, for eksempel SpareBank 1 Norge Verdi B med 1,00 % og minsteinnskudd på 2 millioner kroner. Jeg setter gjerne opp en oversikt over aktuelle andelsklasser for begge fondene ut fra beløpet dere vurderer.</p>
+          <p>Hvis det er nyttig, kan jeg også sette opp et kort møte med forvalterne.</p>
+          <p>Vennlig hilsen<br>[Navn]<br>[Tittel, selskap]</p>
+          <p class="fine">Historisk avkastning er ingen garanti for fremtidig avkastning. Fremtidig avkastning vil blant annet avhenge av markedsutviklingen, forvalterens dyktighet, fondets risiko og kostnader. Avkastningen kan bli negativ som følge av kurstap.</p>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <!-- ============ FONDSSAMMENLIGNING ============ -->
+  <section class="panel" id="sammenligning" role="tabpanel" aria-labelledby="tab-sammenligning" hidden>
+    <aside class="side">
+      <div>
+        <h3>Rådgiveren skriver</h3>
+        <div class="ask"><span class="who">I chat med Claude</span><p id="cmp-ask"></p></div>
+      </div>
+      <div>
+        <h3>Claude brukte</h3>
+        <ul class="list" id="cmp-sources"></ul>
+      </div>
+      <div>
+        <h3>Claude sjekket</h3>
+        <ul class="list checks">
+          <li>Hele kalenderår 2021–2025 og hittil i år per 30.09.2026 for alle fond, slik at periodene er like</li>
+          <li>Snitt per år og overlapp er beregnet med kode, ikke anslått</li>
+          <li>Fordeler og ulemper for alle fond, også våre egne</li>
+          <li>Kategorisnitt fra Morningstar som felles målestokk</li>
+          <li>Risikomål fra Morningstar for alle fond, tre år til 30.09.2026</li>
+          <li>Månedstallene er kjedet til kalenderår og stemmer med Morningstars årstall for alle fond</li>
+          <li>Tracking error og informasjonsrate er regnet med Morningstars metode og stemmer med profilene der de finnes</li>
+          <li>Sammenligningsfondene er valgt ut fra fondenes egen strategiomtale</li>
+          <li>Fall, korrelasjon og risikobidrag er beregnet med kode</li>
+        </ul>
+      </div>
+    </aside>
+
+    <article class="paper">
+      <div class="paper-head">
+        <span class="eyebrow">Fondssammenligning · internt arbeidsgrunnlag</span>
+        <span class="pill">Data per 30.09.2026</span>
+      </div>
+      <div class="paper-body">
+        <div class="seg" role="group" aria-label="Velg sammenligning" id="cmp-seg"></div>
+        <h2 id="cmp-title" style="font-size:22px;margin-bottom:8px"></h2>
+        <p class="summary" id="cmp-summary"></p>
+        <div class="k">Verdien av 100 kroner investert ved utgangen av 2020</div>
+        <div class="chart" id="cmp-chart"></div>
+        <div class="k">Avkastning per kalenderår</div>
+        <div class="tbl-wrap" id="cmp-table"></div>
+        <div class="k">Fordeler og ulemper</div>
+        <div class="proscons" id="cmp-pc"></div>
+        <div class="k">Forskjeller i porteføljen</div>
+        <div class="box"><p id="cmp-port"></p></div>
+
+        <div class="risk-head"><h3>Risiko</h3><span>for institusjonelle: svingninger, fall, avvik fra indeks og samspill mellom fondene</span></div>
+        <p id="cmp-risk-text" style="font-family:var(--font-doc);font-size:16.5px;line-height:1.6;max-width:68ch;margin:10px 0 4px"></p>
+        <div class="k">Risiko og risikojustert avkastning, 3 år</div>
+        <div class="tbl-wrap" id="cmp-risk"></div>
+        <div class="k">Fall og nedside, månedlig fra 31.12.2021 til 30.09.2026</div>
+        <div class="tbl-wrap" id="cmp-dd"></div>
+        <div class="k">Korrelasjon mellom fondene, månedsavkastning 2022–2026</div>
+        <div class="tbl-wrap" id="cmp-corr"></div>
+        <div class="k">Hvert fonds bidrag til risikoen, like vekter</div>
+        <div class="rc" id="cmp-rc"></div>
+        <div class="k" id="cmp-meaning-k"></div>
+        <p id="cmp-meaning" style="font-family:var(--font-doc);font-size:16.5px;line-height:1.6;max-width:68ch;margin:0 0 16px"></p>
+        <p class="fine" id="cmp-notes" style="font-size:13px;color:var(--muted);max-width:80ch;margin:0"></p>
+      </div>
+    </article>
+  </section>
+
+  <!-- ============ MARKEDSOPPDATERING ============ -->
+  <section class="panel" id="marked" role="tabpanel" aria-labelledby="tab-marked" hidden>
+    <aside class="side">
+      <div>
+        <h3>Rådgiveren skriver</h3>
+        <div class="ask"><span class="who">I chat med Claude</span>
+          <p>«Lag en kort markedsoppdatering for september til institusjonelle kunder, basert på forvalternes kommentarer for ODIN Norge, ODIN Norden og SpareBank 1 Norge Verdi.»</p>
+        </div>
+      </div>
+      <div>
+        <h3>Claude brukte</h3>
+        <ul class="list">
+          <li><a href="https://odinfond.no/funds/files/980146618/no/comment/M%C3%A5nedskommentar.pdf" target="_blank" rel="noopener">Månedskommentar ODIN Norge</a></li>
+          <li><a href="https://odinfond.no/funds/files/980146561/no/comment/M%C3%A5nedskommentar.pdf" target="_blank" rel="noopener">Månedskommentar ODIN Norden</a></li>
+          <li><a href="https://odinfond.no/funds/files/920156886/no/comment/M%C3%A5nedskommentar.pdf" target="_blank" rel="noopener">Månedskommentar SpareBank 1 Norge Verdi</a></li>
+          <li><a href="https://odinfond.no/funds/files/915083099/no/comment/M%C3%A5nedskommentar.pdf" target="_blank" rel="noopener">Månedskommentar ODIN Rente (renter)</a></li>
+          <li>Tre månedlige faktaark per 30.09.2026 (tallene)</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Claude sjekket</h3>
+        <ul class="list checks">
+          <li>Skrevet med egne ord, ikke klippet fra kommentarene</li>
+          <li>Hvert faktautsagn finnes i minst én kommentar</li>
+          <li>Ingen prognoser utover det forvalterne selv sier</li>
+          <li>Fondstall fra faktaarkene, med samme dato</li>
+        </ul>
+      </div>
+    </aside>
+
+    <article class="paper">
+      <div class="paper-head">
+        <span class="eyebrow">Markedsoppdatering · utkast</span>
+        <span class="pill">September 2026</span>
+      </div>
+      <div class="paper-body">
+        <div class="doc">
+          <h2>Stigende renter og dyrere energi preget september</h2>
+          <p style="font-size:18px">Flere sentralbanker satte opp renten, og oljeprisen steg til over 100 dollar fatet. Både norske og nordiske aksjer falt i måneden, og alle tre fondene endte litt svakere enn sine referanseindekser.</p>
+
+          <h3>Renter og sentralbanker</h3>
+          <p>Den amerikanske sentralbanken, ECB og Norges Bank hevet alle renten med 0,25 prosentpoeng. For USA var det den første renteøkningen på tre år, og Norges Banks styringsrente er nå 4,5 %. Lange amerikanske renter steg kraftig, og 30-årsrenten nådde sitt høyeste nivå siden 2002. Høyere renter øker avkastningskravet og legger press på aksjeprisingen.</p>
+
+          <h3>Energi</h3>
+          <p>Konflikten i Midtøsten og usikkerhet rundt en gjenåpning av Hormuzstredet drev oljeprisen opp, og den endte måneden rundt 103 dollar fatet. Det er en oppgang på om lag 70 % hittil i år.</p>
+
+          <h3>Norge</h3>
+          <p>Oslo Børs falt rundt 2 % etter et sterkt år så langt. Forvalterne i ODIN Norge mener 2026 kan bli et rekordår for børsen hvis høsten ikke byr på store overraskelser, og beholder en betydelig energieksponering. Et møte med ledelsen i DOF Group bekreftet sterk etterspørsel, fulle ordrebøker og ventet høyere prosjektmarginer innen oljeservice.</p>
+          <p>I SpareBank 1 Norge Verdi bidro Nordic Semiconductor, Kitron og Kongsberg Maritime mest i september, mens Aker, Yara og Vend trakk ned. Forvalterne holder fast ved en langsiktig og verdiorientert strategi med vekt på solide balanser og god kontantstrøm.</p>
+
+          <h3>Norden</h3>
+          <p>Danmark falt mest av de nordiske markedene, Finland endte så vidt i pluss, og Norge og Sverige falt vel 2 %. Novo Nordisk skuffet markedet på sin kapitalmarkedsdag med signaler om ensifret omsetningsvekst. ODIN Nordens forvaltere beskriver fondet som «en verden i miniatyr»: en konsentrert portefølje av nordiske kvalitetsselskaper, spredt på sektorer omtrent som verdensindeksen.</p>
+
+          <h3>Fondene i tall</h3>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Fond (klasse C)</th><th>September</th><th>Indeks</th><th>Hittil i år</th><th>Indeks</th></tr></thead>
+              <tbody>
+                <tr><td>ODIN Norge</td><td class="neg">−3,52 %</td><td class="neg">−2,20 %</td><td>13,58 %</td><td>21,67 %</td></tr>
+                <tr><td>SpareBank 1 Norge Verdi</td><td class="neg">−2,74 %</td><td class="neg">−2,20 %</td><td>15,82 %</td><td>21,67 %</td></tr>
+                <tr><td>ODIN Norden</td><td class="neg">−3,55 %</td><td class="neg">−3,16 %</td><td class="neg">−10,20 %</td><td class="neg">−0,16 %</td></tr>
+              </tbody>
+              <caption>Indeks: Oslo Børs Fondindeks for de norske fondene, VINX Benchmark Cap NOK for ODIN Norden. Kilde: månedlige faktaark per 30.09.2026.</caption>
+            </table>
+          </div>
+
+          <h3>Dette følger forvalterne med på</h3>
+          <ul>
+            <li>Rapportsesongen, og om selskapene bekrefter den sterke inntjeningen.</li>
+            <li>Renteutviklingen, som er den største kortsiktige risikoen for aksjer.</li>
+            <li>Midtøsten og energiprisene. ODIN Norges forvaltere mener en løsning ikke ligger år frem i tid, men har ikke et klart syn på når den kommer.</li>
+            <li>Mellomvalget i USA, som gir økt usikkerhet.</li>
+          </ul>
+          <p class="fine">Historisk avkastning er ingen garanti for fremtidig avkastning. Avkastningen kan bli negativ som følge av kurstap. Dette er en markedsoppdatering og ikke en investeringsanbefaling.</p>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <!-- ============ PORTEFØLJESIMULERING ============ -->
+  <section class="panel" id="simulering" role="tabpanel" aria-labelledby="tab-simulering" hidden>
+    <aside class="side">
+      <div>
+        <h3>Rådgiveren skriver</h3>
+        <div class="ask"><span class="who">I chat med Claude, før et kundemøte</span>
+          <p>«Kommunal pensjonskasse med 100 millioner kroner til forvaltning. De vil ha om lag 60 % aksjer og 40 % renter i våre fond. Vis hva de kan forvente fremover med Finans Norges forutsetninger, hvordan porteføljen ville gått de siste årene, og hva den koster.»</p>
+        </div>
+      </div>
+      <div>
+        <h3>Claude brukte</h3>
+        <ul class="list" id="sim-sources"></ul>
+      </div>
+      <div>
+        <h3>Claude sjekket</h3>
+        <ul class="list checks">
+          <li>Satser, korrelasjoner og formler er hentet fra Finans Norges avtale (punkt 4 og vedlegg 2)</li>
+          <li>Anslaget fremover bygger ikke på historikken</li>
+          <li>Den simulerte historikken bruker faktisk avkastning i de samme fondene, for hele kalenderår</li>
+          <li>Kostnadene er trukket fra, og effekten vises i kroner</li>
+          <li>Realverdier først, nominelle som tillegg (punkt 5)</li>
+          <li>95 %-intervall vises sammen med hvert forventet beløp (punkt 8.1)</li>
+          <li>Rentefondet svinger mindre enn obligasjonsklassen, så det alternative anslaget vises også (punkt 1.2)</li>
+          <li>Beregningene er kontrollert mot en uavhengig utregning</li>
+        </ul>
+      </div>
+    </aside>
+
+    <article class="paper">
+      <div class="paper-head">
+        <span class="eyebrow">Porteføljeforslag · internt arbeidsgrunnlag</span>
+        <span class="pill">Finans Norge 2026 · fondsdata per 30.09.2026</span>
+      </div>
+      <div class="paper-body">
+        <h2 style="font-size:22px;margin-bottom:8px">Porteføljeforslag for en kommunal pensjonskasse</h2>
+        <p class="summary" id="sim-summary"></p>
+
+        <div class="sim-ctl">
+          <div class="seg" role="group" aria-label="Velg utgangspunkt" id="sim-presets" style="margin:0"></div>
+          <div class="sim-rows" id="sim-rows"></div>
+          <div class="sim-inputs">
+            <label>Beløp, mill. kr<input type="number" id="sim-amount" min="1" max="100000" step="1" value="100" inputmode="decimal"></label>
+            <label>Horisont<span class="sim-h"><input type="range" id="sim-years" min="5" max="30" step="1" value="20"><output id="sim-years-out" for="sim-years">20 år</output></span></label>
+            <div class="grp"><span>Rentefondet i modellen</span><div class="seg" role="group" aria-label="Aktivaklasse for rentefondet" id="sim-map" style="margin:0"></div></div>
+          </div>
+        </div>
+
+        <div class="k">Fordeling og kostnader</div>
+        <div class="tbl-wrap" id="sim-alloc"></div>
+
+        <div class="risk-head"><h3>Anslag fremover</h3><span>Finans Norges forutsetninger, i dagens kroner, etter kostnader</span></div>
+        <p class="warn" id="sim-fwarn"></p>
+        <div class="tiles" id="sim-tiles"></div>
+        <div class="k">Forventet verdi og 95 %-intervall, mill. kr i dagens kroner</div>
+        <div class="chart" id="sim-fan"></div>
+        <div class="tbl-wrap" id="sim-ftbl"></div>
+        <div class="k">Rentefondet som obligasjoner eller pengemarked</div>
+        <p id="sim-alt-text" style="font-size:14.5px;max-width:72ch;margin:0 0 6px"></p>
+        <div class="tbl-wrap" id="sim-alt"></div>
+
+        <div class="risk-head"><h3>Simulert historikk 2021–2025</h3><span>samme fond og vekter, rebalansert ved hvert årsskifte, etter fondenes kostnader</span></div>
+        <p class="warn">Tallene er simulert historisk avkastning. Porteføljen har ikke eksistert. Historisk avkastning er ingen pålitelig indikator for fremtidig avkastning.</p>
+        <div class="tiles" id="sim-htiles"></div>
+        <div class="k" id="sim-hist-k"></div>
+        <div class="chart" id="sim-hist"></div>
+        <div class="tbl-wrap" id="sim-htbl"></div>
+
+        <div class="k">Hva rådgiveren kan si til pensjonskassen</div>
+        <p id="sim-meaning" style="font-family:var(--font-doc);font-size:16.5px;line-height:1.6;max-width:68ch;margin:0 0 16px"></p>
+        <div class="k">Forutsetninger og forbehold</div>
+        <ul class="fine-list" id="sim-notes"></ul>
+      </div>
+    </article>
+  </section>
+</main>
+
+<footer class="how">
+  <div class="wrap">
+    <div>
+      <h2>Slik ble demoen laget</h2>
+      <p>Claude hentet faktaark, fondssider og månedskommentarer fra odinfond.no, Morningstar-data for sammenligningsfondene (fondsprofiler og Morningstar.com) og fondenes egne strategiomtaler. Snitt per år er regnet fra kalenderårene. Risikomålene er Morningstars treårstall; største fall, korrelasjon, risikobidrag og overlapp i beholdninger er regnet med kode fra Morningstars månedsavkastning og beholdningslister. Sammenligningsfondene er valgt for demoen og bør kvalitetssikres av forvalterne. Det er brukt detaljandelsklasser; institusjonelle klasser har lavere honorar og gir andre tall. Porteføljesimuleringen bruker satsene og formlene i Finans Norges avtale for anslaget fremover, og fondenes faktiske kalenderårsavkastning for den simulerte historikken.</p>
+    </div>
+    <div>
+      <h2>Med Morningstar-koblingen</h2>
+      <ol>
+        <li>Rådgiveren skriver spørsmålet i Claude, uten å lete opp faktaark.</li>
+        <li>Claude henter tall, beholdninger og analyser direkte fra Morningstar, med samme dato for alle fond.</li>
+        <li>Svaret kommer i fast format, godkjent av compliance.</li>
+      </ol>
+    </div>
+    <div>
+      <h2>Kilder</h2>
+      <ul class="list" id="all-sources"></ul>
+    </div>
+  </div>
+</footer>
+
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function () {
+  // ---------- data (kilder i SRC) ----------
+  var SRC = {
+    fNorge: ["Faktaark ODIN Norge C, 30.09.2026", "https://odinfond.no/funds/files/980146618/no/fund-NO0008000379/comment/M%C3%A5nedlig%20Faktaark.pdf"],
+    fNorden: ["Faktaark ODIN Norden C, 30.09.2026", "https://odinfond.no/funds/files/980146561/no/fund-NO0008000155/comment/M%C3%A5nedlig%20Faktaark.pdf"],
+    fSb1: ["Faktaark SpareBank 1 Norge Verdi C, 30.09.2026", "https://odinfond.no/funds/files/920156886/no/fund-NO0010814411/comment/M%C3%A5nedlig%20Faktaark.pdf"],
+    pNorge: ["Fondsside ODIN Norge C (kalenderår)", "https://odinfond.no/fond/odin-norge-c-nok/"],
+    pNorden: ["Fondsside ODIN Norden C (kalenderår)", "https://odinfond.no/fond/odin-norden-c-nok/"],
+    pSb1: ["Fondsside SpareBank 1 Norge Verdi C (kalenderår)", "https://odinfond.no/fond/sparebank-1-norge-verdi-c/"],
+    pSb1b: ["Fondsside SpareBank 1 Norge Verdi B", "https://odinfond.no/fond/sparebank-1-norge-verdi-b/"],
+    kNorge: ["Månedskommentar ODIN Norge, september", "https://odinfond.no/funds/files/980146618/no/comment/M%C3%A5nedskommentar.pdf"],
+    kNorden: ["Månedskommentar ODIN Norden, september", "https://odinfond.no/funds/files/980146561/no/comment/M%C3%A5nedskommentar.pdf"],
+    kSb1: ["Månedskommentar SpareBank 1 Norge Verdi, september", "https://odinfond.no/funds/files/920156886/no/comment/M%C3%A5nedskommentar.pdf"],
+    kRente: ["Månedskommentar ODIN Rente, september", "https://odinfond.no/funds/files/915083099/no/comment/M%C3%A5nedskommentar.pdf"],
+    mFf: ["Morningstar-profil Fondsfinans Norge B", "https://api.fund.storebrand.no/open/funddata/document?documentType=FUND_PROFILE&isin=NO0013168708&languageCode=no&market=NOR"],
+    mNv: ["Morningstar-profil Nordea Norge Verdi A", "https://api.fund.storebrand.no/open/funddata/document?documentType=FUND_PROFILE&isin=FI4000565973&languageCode=no&market=NOR"],
+    mPa: ["Morningstar-profil Pareto Aksje Norge B", "https://api.fund.storebrand.no/open/funddata/document?documentType=FUND_PROFILE&isin=NO0010297898&languageCode=no&market=NOR"],
+    mCww: ["Morningstar-profil C WorldWide Norden", "https://www.skagenfondene.no/api/FundDataDocument/GetFundDocument?fundFileType=FUND_PROFILE&isin=NO0008001484&language=nb-NO&currency=NOK&country=NOR"],
+    rPa: ["Månedsrapport Pareto Aksje Norge B, 30.09.2026", "https://paretoam.com/uploads/Monthly-reports/Norwegian-reports/Pareto_Aksje_Norge_B-MR-no.pdf"],
+    mNorge: ["Morningstar-profil ODIN Norge C", "https://api.fund.storebrand.no/open/funddata/document?documentType=FUND_PROFILE&isin=NO0008000379&languageCode=no&market=NOR"],
+    mNorden: ["Morningstar-profil ODIN Norden C", "https://api.fund.storebrand.no/open/funddata/document?documentType=FUND_PROFILE&isin=NO0008000155&languageCode=no&market=NOR"],
+    mDn: ["Morningstar-profil DNB Norden A", "https://api.fund.storebrand.no/open/funddata/document?documentType=FUND_PROFILE&isin=NO0010820012&languageCode=no&market=NOR"],
+    mHd: ["Morningstar-profil Holberg Norden A", "https://api.fund.storebrand.no/open/funddata/document?documentType=FUND_PROFILE&isin=NO0010072945&languageCode=no&market=NOR"],
+    mEn: ["Morningstar-profil Eika Norden A", "https://api.fund.storebrand.no/open/funddata/document?documentType=FUND_PROFILE&isin=NO0008001880&languageCode=no&market=NOR"],
+    msNorge: ["Morningstar.com: ODIN Norge C (månedsdata)", "https://global.morningstar.com/en-nd/investments/funds/0P00000SVG/quote"],
+    msSb1: ["Morningstar.com: SpareBank 1 Norge Verdi C", "https://global.morningstar.com/en-nd/investments/funds/0P0001FADG/quote"],
+    msNorden: ["Morningstar.com: ODIN Norden C (månedsdata)", "https://global.morningstar.com/en-nd/investments/funds/0P00000SVE/quote"],
+    msSv: ["Morningstar.com: Storebrand Verdi A", "https://global.morningstar.com/en-nd/investments/funds/0P00000O5V/quote"],
+    msPl: ["Morningstar.com: PLUSS Aksje A", "https://global.morningstar.com/en-nd/investments/funds/0P00000MXR/quote"],
+    msHn: ["Morningstar.com: Holberg Norge A", "https://global.morningstar.com/en-nd/investments/funds/0P00000OCZ/quote"],
+    msFua: ["Morningstar.com: Fondsfinans Utbytte A", "https://global.morningstar.com/en-nd/investments/funds/0P0001IEW6/quote"],
+    msLu: ["Morningstar.com: Landkreditt Utbytte A", "https://global.morningstar.com/en-nd/investments/funds/0P0000Y66P/quote"],
+    nnSv: ["Nordnet: Storebrand Verdi (strategi)", "https://www.nordnet.no/fond/liste/storebrand-verdi-n-nok-4fd3565e"],
+    nnHn: ["Nordnet: Holberg Norge A (strategi)", "https://www.nordnet.no/fond/liste/holberg-norge-a-nok-1e3e8195"],
+    kidPl: ["Nøkkelinformasjon PLUSS Aksje A", "https://irp.cdn-website.com/da2e089e/files/uploaded/1.+PRIIPS-KID+-+PLUSS+Aksje+A-eb51b3ef.pdf"],
+    rLu: ["Fondsrapport Landkreditt Utbytte A, 30.09.2026", "https://www.landkreditt.no/globalassets/lkf/fondsfakta/fondsrapport/landkreditt_utbytte_a.pdf"],
+    fnAvtale: ["Finans Norge: Avtale om avkastningsprognoser, revidert 04.02.2026", "https://www.finansnorge.no/siteassets/dokumenter/avtaler/avtale-om-avkastningsprognoser_revidert-04.02.2026_ikrafttredelse-11.02.2026.pdf"],
+    fOblig: ["Faktaark ODIN Norsk Obligasjon C, 30.09.2026", "https://odinfond.no/funds/files/971106921/no/fund-NO0008000056/comment/M%C3%A5nedlig%20Faktaark.pdf"],
+    pOblig: ["Fondsside ODIN Norsk Obligasjon C (kalenderår)", "https://odinfond.no/fond/odin-norsk-obligasjon-c/"]
+  };
+
+  // Risiko. ms: 3 år per 30.09.2026 [volatilitet, Sharpe, beta, R², tracking error, informasjonsrate, alfa].
+  // Norske fond: Morningstar.com; tracking error og informasjonsrate regnet fra Morningstars månedsdata (stemmer med profilene der de finnes).
+  // Nordiske fond: Morningstar-profilene. Øvrige felt: regnet fra Morningstars månedsavkastning 31.12.2021–30.09.2026 (57 måneder).
+  var RK = {
+    norge:  { ms: [11.21, 1.24, 0.86, 74.14, 5.90, 0.52, 4.18], mdd: -17.19, from: "04.22", to: "09.22", back: "04.23", worst: -12.81, worstM: "09.22", pos: 35, down: 8.08 },
+    sb1:    { ms: [9.41, 1.64, 0.81, 91.42, 3.51, 1.45, 6.39], mdd: -15.96, from: "05.22", to: "09.22", back: "02.23", worst: -11.13, worstM: "09.22", pos: 38, down: 7.63 },
+    norden: { ms: [12.24, 0.28, 0.65, 47.31, 8.97, 0.09, 2.39], mdd: -27.62, from: "12.21", to: "09.22", back: "03.24", worst: -14.12, worstM: "01.22", pos: 32, down: 11.57 },
+    ff:     { ms: [10.14, 1.18, 0.78, 74.62, 5.65, 0.16, 3.11], mdd: -11.99, from: "05.22", to: "09.22", back: "12.22", worst: -9.93, worstM: "09.22", pos: 36, down: 6.75 },
+    nv:     { ms: [8.83, 1.87, 0.61, 60.22, 7.05, 0.92, 9.64], mdd: -13.12, from: "05.22", to: "09.22", back: "02.23", worst: -8.71, worstM: "06.22", pos: 35, down: 6.12 },
+    sv:     { ms: [10.63, 1.08, 0.88, 85.26, 4.30, 0.08, 1.61], mdd: -11.45, from: "05.22", to: "09.22", back: "08.23", worst: -9.50, worstM: "09.22", pos: 35, down: 7.16 },
+    pl:     { ms: [9.64, 1.12, 0.73, 71.77, 5.94, -0.05, 2.60], mdd: -16.40, from: "05.22", to: "09.22", back: "04.23", worst: -13.66, worstM: "09.22", pos: 35, down: 8.16 },
+    pa:     { ms: [9.54, 1.27, 0.74, 74.52, 5.64, 0.22, 3.88], mdd: -19.22, from: "04.22", to: "09.22", back: "02.23", worst: -13.64, worstM: "09.22", pos: 38, down: 8.84 },
+    hn:     { ms: [8.27, 1.63, 0.53, 52.28, 7.72, 0.38, 7.49], mdd: -16.76, from: "12.21", to: "09.22", back: "02.23", worst: -10.33, worstM: "09.22", pos: 36, down: 7.35 },
+    fua:    { ms: [8.08, 1.95, 0.65, 80.09, 5.35, 1.04, 8.46], mdd: -11.02, from: "04.22", to: "09.22", back: "01.23", worst: -9.35, worstM: "09.22", pos: 37, down: 5.91 },
+    lu:     { ms: [7.61, 1.62, 0.44, 41.42, 8.56, 0.19, 7.41], mdd: -23.99, from: "12.21", to: "09.22", back: "01.24", worst: -13.24, worstM: "09.22", pos: 38, down: 7.91 },
+    cww:    { ms: [12.77, 0.25, 0.85, 76.11, 5.82, 0.09, 1.19], mdd: -21.88, from: "12.21", to: "09.22", back: "03.23", worst: -11.97, worstM: "01.22", pos: 34, down: 10.51 },
+    dn:     { ms: [11.08, 0.56, 0.82, 83.58, 4.72, 0.86, 4.50], mdd: -18.04, from: "12.21", to: "09.22", back: "04.23", worst: -10.13, worstM: "01.22", pos: 35, down: 9.23 },
+    hd:     { ms: [11.19, 0.66, 0.56, 42.01, 9.18, 0.57, 6.81], mdd: -17.84, from: "12.21", to: "09.22", back: "02.23", worst: -8.26, worstM: "02.22", pos: 32, down: 8.54 },
+    en:     { ms: [12.05, 0.46, 0.83, 79.37, 5.31, 0.59, 3.62], mdd: -16.58, from: "12.21", to: "09.22", back: "03.23", worst: -9.48, worstM: "03.25", pos: 31, down: 9.00 }
+  };
+  var NMONTHS = 57;
+  var CK = ["norge", "sb1", "norden", "ff", "nv", "sv", "pl", "pa", "hn", "fua", "lu", "cww", "dn", "hd", "en"];
+  var CSHORT = { norge: "ODIN Norge", sb1: "SB1 Norge Verdi", norden: "ODIN Norden", ff: "Fondsfinans", nv: "Nordea N. Verdi", sv: "Storebrand Verdi", pl: "PLUSS Aksje", pa: "Pareto", hn: "Holberg Norge", fua: "FF Utbytte", lu: "Landkreditt Utb.", cww: "CWW Norden", dn: "DNB Norden", hd: "Holberg Norden", en: "Eika Norden" };
+  // Korrelasjon, månedsavkastning januar 2022–september 2026, rekkefølge som CK.
+  var CORR = [
+    [1.00, 0.92, 0.43, 0.85, 0.83, 0.77, 0.88, 0.88, 0.86, 0.90, 0.84, 0.44, 0.37, 0.44, 0.38],
+    [0.92, 1.00, 0.36, 0.91, 0.88, 0.89, 0.87, 0.92, 0.87, 0.93, 0.80, 0.36, 0.28, 0.37, 0.30],
+    [0.43, 0.36, 1.00, 0.41, 0.44, 0.13, 0.41, 0.37, 0.55, 0.46, 0.50, 0.92, 0.88, 0.87, 0.90],
+    [0.85, 0.91, 0.41, 1.00, 0.85, 0.86, 0.89, 0.88, 0.82, 0.90, 0.74, 0.43, 0.36, 0.45, 0.37],
+    [0.83, 0.88, 0.44, 0.85, 1.00, 0.83, 0.80, 0.89, 0.82, 0.87, 0.82, 0.41, 0.34, 0.51, 0.36],
+    [0.77, 0.89, 0.13, 0.86, 0.83, 1.00, 0.81, 0.87, 0.72, 0.81, 0.69, 0.16, 0.12, 0.24, 0.12],
+    [0.88, 0.87, 0.41, 0.89, 0.80, 0.81, 1.00, 0.87, 0.77, 0.84, 0.75, 0.43, 0.37, 0.40, 0.36],
+    [0.88, 0.92, 0.37, 0.88, 0.89, 0.87, 0.87, 1.00, 0.86, 0.91, 0.86, 0.41, 0.36, 0.43, 0.36],
+    [0.86, 0.87, 0.55, 0.82, 0.82, 0.72, 0.77, 0.86, 1.00, 0.91, 0.89, 0.53, 0.45, 0.57, 0.49],
+    [0.90, 0.93, 0.46, 0.90, 0.87, 0.81, 0.84, 0.91, 0.91, 1.00, 0.88, 0.45, 0.38, 0.49, 0.39],
+    [0.84, 0.80, 0.50, 0.74, 0.82, 0.69, 0.75, 0.86, 0.89, 0.88, 1.00, 0.50, 0.43, 0.54, 0.44],
+    [0.44, 0.36, 0.92, 0.43, 0.41, 0.16, 0.43, 0.41, 0.53, 0.45, 0.50, 1.00, 0.92, 0.84, 0.94],
+    [0.37, 0.28, 0.88, 0.36, 0.34, 0.12, 0.37, 0.36, 0.45, 0.38, 0.43, 0.92, 1.00, 0.82, 0.96],
+    [0.44, 0.37, 0.87, 0.45, 0.51, 0.24, 0.40, 0.43, 0.57, 0.49, 0.54, 0.84, 0.82, 1.00, 0.84],
+    [0.38, 0.30, 0.90, 0.37, 0.36, 0.12, 0.36, 0.36, 0.49, 0.39, 0.44, 0.94, 0.96, 0.84, 1.00]
+  ];
+  // Risikobidrag med like vekter: andel av porteføljens volatilitet (månedsdata, annualisert).
+  var RC = {
+    verdi:    { title: "Like vekter i de fem verdifondene", funds: ["sb1", "ff", "nv", "sv", "pl"], share: [21.2, 20.1, 17.5, 20.8, 20.4], vol: 11.30, wavg: 12.00 },
+    kvalitet: { title: "Like vekter i de fem fondene", funds: ["norge", "pa", "hn", "fua", "lu"], share: [21.2, 21.9, 20.1, 17.8, 19.0], vol: 11.48, wavg: 12.08 },
+    norden:   { title: "Like vekter i de fem nordiske fondene", funds: ["norden", "cww", "dn", "hd", "en"], share: [22.5, 21.9, 18.2, 18.0, 19.4], vol: 13.47, wavg: 14.10 },
+    egne:     { title: "Like vekter i ODIN Norge, SpareBank 1 Norge Verdi og ODIN Norden", funds: ["norge", "sb1", "norden"], share: [33.9, 31.4, 34.7], vol: 11.43, wavg: 13.68 }
+  };
+  var RISKNOTE = " Største fall, korrelasjon og risikobidrag er regnet fra Morningstars månedsavkastning, 31.12.2021–30.09.2026 (57 måneder). Fall innenfor en måned kommer ikke med.";
+
+  var YEARS = [2021, 2022, 2023, 2024, 2025];
+  var F = {
+    norge:  { name: "ODIN Norge C", r: [26.49, -7.04, 12.54, 20.14, 22.00], ytd: 13.58, fee: "1,50 %", own: true },
+    sb1:    { name: "SpareBank 1 Norge Verdi C", r: [31.08, 5.88, 13.43, 17.16, 23.62], ytd: 15.82, fee: "1,50 %", own: true },
+    norden: { name: "ODIN Norden C", r: [25.71, -21.67, 20.78, 12.58, 8.74], ytd: -10.20, fee: "1,50 %", own: true },
+    ff:     { name: "Fondsfinans Norge B", r: [23.64, 7.29, 15.77, 13.85, 18.41], ytd: 14.01, fee: "0,70 %" },
+    nv:     { name: "Nordea Norge Verdi A", r: [27.36, -3.51, 17.08, 16.37, 27.03], ytd: 16.83, fee: "1,50 %" },
+    sv:     { name: "Storebrand Verdi A", r: [26.94, 11.11, 8.92, 6.68, 21.96], ytd: 21.25, fee: "1,50 %" },
+    pl:     { name: "PLUSS Aksje A", r: [22.88, -3.69, 19.80, 17.06, 17.17], ytd: 12.31, fee: "1,20 %" },
+    pa:     { name: "Pareto Aksje Norge B", r: [26.08, 1.31, 9.84, 13.28, 22.86], ytd: 13.50, fee: "1,80 %" },
+    hn:     { name: "Holberg Norge A", r: [21.81, -5.87, 14.85, 19.01, 27.12], ytd: 6.28, fee: "1,50 %" },
+    fua:    { name: "Fondsfinans Utbytte A", r: [36.26, 1.63, 14.25, 19.93, 25.85], ytd: 14.53, fee: "1,20 %" },
+    lu:     { name: "Landkreditt Utbytte A", r: [27.34, -15.77, 17.40, 18.05, 25.52], ytd: 5.54, fee: "1,30 %" },
+    cww:    { name: "C WorldWide Norden", r: [12.77, -11.17, 27.09, 7.18, 8.09], ytd: -5.99, fee: "1,40 %" },
+    dn:     { name: "DNB Norden A", r: [7.07, -13.22, 17.54, 9.86, 11.12], ytd: 0.88, fee: "0,85 %" },
+    hd:     { name: "Holberg Norden A", r: [25.14, -9.16, 17.28, 10.98, 17.93], ytd: -3.78, fee: "1,50 %" },
+    en:     { name: "Eika Norden A", r: [15.83, -9.42, 19.58, 10.47, 11.34], ytd: -2.37, fee: "1,50 %" },
+    katN:   { name: "Kategori Norge, snitt", r: [21.96, -6.20, 11.60, 13.34, 21.69], ytd: 14.62, fee: "", cat: true },
+    katNd:  { name: "Kategori Norden, snitt", r: [18.75, -14.21, 18.00, 10.21, 12.06], ytd: -3.09, fee: "", cat: true }
+  };
+
+  var CMP = [
+    {
+      id: "verdi", label: "SpareBank 1 Norge Verdi mot verdifond",
+      title: "SpareBank 1 Norge Verdi mot fire andre norske verdifond",
+      ask: "«Hvordan har SpareBank 1 Norge Verdi gjort det mot andre norske verdifond? Forskjeller, risiko, fordeler og ulemper for en pensjonskasse.»",
+      funds: ["sb1", "ff", "nv", "sv", "pl", "katN"],
+      corr: ["sb1", "ff", "nv", "sv", "pl"],
+      sources: ["fSb1", "pSb1", "msSb1", "mFf", "mNv", "msSv", "nnSv", "msPl", "kidPl"],
+      rc: ["verdi"],
+      risk: "Justert for risiko ligger SpareBank 1 Norge Verdi og Nordea Norge Verdi foran. Nordea har høyest Sharpe (1,87) og lavest volatilitet (8,83 %), men følger markedet minst (R² 60, tracking error 7,05 %). SpareBank 1 Norge Verdi har klart høyest informasjonsrate (1,45): meravkastningen har kommet med lavest avvik fra indeksen (tracking error 3,51 %). PLUSS Aksje har negativ informasjonsrate over tre år (−0,05). Fondsfinans Norge og Storebrand Verdi falt minst i 2022, om lag 12 % fra topp til bunn. Korrelasjonen mellom fondene er 0,80–0,91, så å eie flere av dem gir lite spredning.",
+      summary: "SpareBank 1 Norge Verdi har gitt høyest avkastning av de fem verdifondene i 2021–2025, 17,9 % per år, og er det eneste som var best to av de fem årene (2021 og 2024). Nordea Norge Verdi har gitt 16,3 % og Fondsfinans Norge 15,7 % per år, mens Storebrand Verdi og PLUSS Aksje ligger på 14,9 og 14,2 %. Hittil i år leder Storebrand Verdi klart, med 21,3 %.",
+      pc: {
+        sb1: { p: ["Høyest snitt per år i 2021–2025 (17,9 %), og over kategorisnittet alle fem år.", "Høyest informasjonsrate (1,45) og lavest tracking error (3,51 %): jevn meravkastning med lite avvik fra indeksen."], m: ["Honoraret i C-klassen (1,50 %) er over dobbelt så høyt som i Fondsfinans Norge B (0,70 %).", "Kort historikk: fondet startet i 2019, så det finnes ikke 10-årstall."] },
+        ff:  { p: ["Lavest honorar i sammenligningen (0,70 %).", "Positivt alle fem årene, og blant de to med minst fall i 2022 (−12,0 % fra topp til bunn)."], m: ["Lav informasjonsrate over tre år (0,16).", "Under kategorisnittet i 2025 (18,4 % mot 21,7 %)."] },
+        nv:  { p: ["Høyest Sharpe (1,87) og lavest volatilitet (8,83 %).", "Best i 2025 (27,0 %), og over kategorisnittet alle fem år."], m: ["Negativt i 2022 (−3,5 %), mens SpareBank 1 Norge Verdi, Fondsfinans Norge og Storebrand Verdi var positive.", "Størst avvik fra markedet (tracking error 7,05 %, R² 60)."] },
+        sv:  { p: ["Best i 2022 (11,1 %) og klart best hittil i år (21,3 %).", "Minst fall i 2022: −11,5 % fra topp til bunn."], m: ["Svakest i 2023 og 2024 (8,9 % og 6,7 %), under kategorisnittet begge år.", "Lavest Sharpe i gruppen (1,08), og tungt i de største selskapene: Equinor og DNB utgjør 28 % av fondet."] },
+        pl:  { p: ["Best i 2023 (19,8 %).", "Nest lavest honorar (1,20 %)."], m: ["Lavest snitt per år av de fem (14,2 %), og svakest i tre av fem år (2021, 2022 og 2025).", "Negativ informasjonsrate over tre år (−0,05): avkastningen har vært lavere enn Morningstars Norge-indeks."] }
+      },
+      port: "Fondene eier mange av de samme store selskapene. Equinor er blant de ti største i alle fem, og størst i SpareBank 1 Norge Verdi (7,33 %), Fondsfinans Norge (9,02 %) og Storebrand Verdi (15,27 %). Blant de ti største deler SpareBank 1 Norge Verdi sju selskaper med både Storebrand Verdi og PLUSS Aksje (overlapp på 32,3 og 31,1 prosentpoeng), men bare to med Nordea Norge Verdi, som har Mowi som største posisjon (7,20 %) og bredest portefølje med 59 aksjer.",
+      meaningK: "Hva det betyr for en pensjonskasse",
+      meaning: "Valget står mellom høyest langsiktig avkastning med jevnest meravkastning mot indeks (SpareBank 1 Norge Verdi), lavest kostnad og minst fall (Fondsfinans Norge), og høyest Sharpe med størst avvik fra markedet (Nordea Norge Verdi). Storebrand Verdi har vært sterkest i år, men er mer konsentrert i Equinor og DNB. For en pensjonskasse med risikoramme og indeks som målestokk er tracking error og informasjonsrate like viktige som avkastningen. Med korrelasjon 0,80–0,91 gir det lite spredning å kombinere flere av fondene. Institusjonelle andelsklasser har lavere honorar.",
+      notes: "Fondsfinans Norge B og Nordea Norge Verdi A er nyere andelsklasser; for årene før de startet bruker Morningstar fondets eldre historikk. Storebrand Verdi investerer ifølge Nordnet i «verdiselskaper», og PLUSS Aksje er verdiorientert ifølge nøkkelinformasjonen. Beholdningene er fra Morningstar per 30.09.2026 (Nordea Norge Verdi per 31.08.2026). Snitt per år er geometrisk snitt av kalenderårene 2021–2025."
+    },
+    {
+      id: "kvalitet", label: "ODIN Norge mot kvalitetsfond",
+      title: "ODIN Norge mot fire norske kvalitets- og utbyttefond",
+      ask: "«Sammenlign ODIN Norge med andre norske fond som investerer i kvalitetsselskaper, for en kommunal pensjonskasse. Hvor skiller de seg, også på risiko?»",
+      funds: ["norge", "pa", "hn", "fua", "lu", "katN"],
+      corr: ["norge", "pa", "hn", "fua", "lu"],
+      sources: ["fNorge", "pNorge", "msNorge", "mPa", "rPa", "msHn", "nnHn", "msFua", "msLu", "rLu"],
+      rc: ["kvalitet"],
+      risk: "Fondsfinans Utbytte er også best justert for risiko, med høyest Sharpe (1,95) og informasjonsrate (1,04), og minst fall i 2022 (−11,0 % fra topp til bunn). Landkreditt Utbytte og Fondsfinans Utbytte svinger minst (7,61 og 8,08 %). Landkreditt Utbytte og Holberg Norge følger markedet minst (R² 41 og 52, tracking error 8,56 og 7,72 %), så de kan avvike mye fra indeksen. ODIN Norge har høyest volatilitet av de fem (11,21 %). Landkreditt Utbytte hadde størst fall, −24,0 % fra utgangen av 2021 til september 2022. Korrelasjonen mellom fondene er 0,84–0,91, så de sprer risikoen lite mot hverandre.",
+      summary: "Fondsfinans Utbytte har gitt klart høyest avkastning av de fem i 2021–2025, 19,0 % per år, og var best i både 2021 og 2022. Holberg Norge, Pareto Aksje Norge og ODIN Norge ligger tett, på 14,2–14,8 % per år, og Landkreditt Utbytte på 13,3 %. ODIN Norge var best i 2024, og ligger hittil i år på linje med Pareto og Fondsfinans Utbytte, rett under kategorisnittet.",
+      pc: {
+        norge: { p: ["Best i 2024 (20,1 %), og over kategorisnittet fire av fem år.", "Lavere honorar enn Pareto Aksje Norge B (1,50 % mot 1,80 %), og et stort fond (18,7 mrd. kr) med historikk fra 1992."], m: ["Høyest volatilitet av de fem (11,21 %).", "Svakest av de fem i 2025 (22,0 %), og under kategorisnittet i 2022 (−7,0 % mot −6,2 %)."] },
+        pa:    { p: ["Positivt i 2022 (1,3 %) mens kategorien falt 6,2 %.", "Konsentrert portefølje (24 aksjer) med klare kriterier: solid balanse, god egenkapitalavkastning og rimelig prising."], m: ["Høyest honorar (1,80 %).", "Svakest i 2023 og 2024, og kalenderåret skjuler fallet i 2022: −19,2 % fra april til september."] },
+        hn:    { p: ["Best i 2025 (27,1 %), og over kategorisnittet fire av fem år.", "Lav volatilitet (8,27 %) og nest høyest Sharpe (1,63)."], m: ["Langt under kategorisnittet hittil i år (6,3 % mot 14,6 %).", "Følger markedet lite (R² 52, tracking error 7,72 %)."] },
+        fua:   { p: ["Høyest snitt per år (19,0 %), og over kategorisnittet alle fem år.", "Høyest Sharpe (1,95) og informasjonsrate (1,04), og minst fall i 2022 (−11,0 %)."], m: ["Fondet er i «soft close», med 5 % tegningsgebyr i andelsklasse A og B ifølge Morningstar.", "Kort historikk: Morningstar har data fra 2019, så det finnes ikke 10-årstall."] },
+        lu:    { p: ["Lavest volatilitet (7,61 %).", "Best i 2023 (17,4 %), og over kategorisnittet fire av fem år."], m: ["Størst fall: −24,0 % fra utgangen av 2021 til september 2022, og svakest i 2022 (−15,8 %).", "Lavest snitt per år (13,3 %) og svakest hittil i år (5,5 %)."] }
+      },
+      port: "Porteføljene er ulike. Fondsfinans Utbytte og Landkreditt Utbytte har mest i finans (27 % og 41 %), med blant annet DNB, Storebrand og sparebanker blant de største. Holberg Norge har mest i forbruksvarer (25 %), med Mowi, Storebrand og Orkla øverst. ODIN Norge har mest i industri (28 %) og energi (16 %), med Equinor, Vend Marketplaces og Nordic Semiconductor øverst. Blant de ti største deler ODIN Norge flest selskaper med Fondsfinans Utbytte (fire, 18,4 prosentpoeng) og færrest med Holberg Norge (to, 8,0 prosentpoeng).",
+      meaningK: "Hva det betyr for pensjonskassen",
+      meaning: "Fondsfinans Utbytte skiller seg ut på både avkastning og risiko, men er i «soft close» med tegningsgebyr. Ser vi bort fra det fondet, har Holberg Norge, Pareto Aksje Norge og ODIN Norge levert nesten det samme over fem år, men på ulike måter: ODIN Norge med mer svingninger og mest i industri og energi, Holberg Norge med lavere svingninger og større avvik fra indeksen. Måler pensjonskassen seg mot indeks, taler ODIN Norges høyere informasjonsrate (0,52 mot 0,22 for Pareto og 0,38 for Holberg) for fondet. Med korrelasjon 0,84–0,91 gir det lite spredning å eie flere av dem.",
+      notes: "Fondene er valgt ut fra egen strategiomtale: Pareto Aksje Norge (Morningstar-profilen), Holberg Norge (Nordnet) og Fondsfinans Utbytte (Morningstar) vektlegger kvalitetsselskaper. Landkreditt Utbytte investerer i utbyttebetalende aksjer på Oslo Børs (fondsrapporten). Overlapp er beregnet fra de ti største posisjonene hos Morningstar (Pareto per 31.08.2026, øvrige per 30.09.2026) og er et utsnitt."
+    },
+    {
+      id: "norden", label: "ODIN Norden mot nordiske fond",
+      title: "ODIN Norden mot fire nordiske fond",
+      ask: "«Hvordan står ODIN Norden seg mot andre nordiske fond som er aktuelle for norske kunder? Stiftelsen eier allerede norske aksjer, og styret er bekymret for den svake utviklingen i år.»",
+      funds: ["norden", "cww", "dn", "hd", "en", "katNd"],
+      corr: ["norden", "cww", "dn", "hd", "en", "norge", "sb1"],
+      sources: ["fNorden", "pNorden", "mNorden", "msNorden", "mCww", "mDn", "mHd", "mEn"],
+      rc: ["norden", "egne"],
+      risk: "ODIN Norden har lavest Sharpe sammen med C WorldWide Norden (0,28 og 0,25), og det største fallet: −27,6 % fra utgangen av 2021 til september 2022, og tilbake på toppen først i mars 2024. Holberg Norden har høyest Sharpe (0,66), og både Holberg Norden og ODIN Norden avviker mye fra markedet (R² 42 og 47, tracking error 9,18 og 8,97 %). DNB Norden følger indeksen tettest (R² 84, tracking error 4,72 %) og har høyest informasjonsrate (0,86). De nordiske fondene henger tett sammen (korrelasjon 0,82–0,96). For en investor som allerede eier norske aksjer teller korrelasjonen mot norske fond mer, og for ODIN Norden er den 0,36–0,43 mot ODIN Norge og SpareBank 1 Norge Verdi.",
+      summary: "Holberg Norden har gitt høyest avkastning av de fem i 2021–2025, 11,8 % per år, og var best i både 2022 og 2025. ODIN Norden (7,8 %) ligger på linje med C WorldWide Norden (8,1 %) og kategorisnittet (8,2 %), bak Eika Norden (9,1 %) og foran DNB Norden (5,9 %). ODIN Norden har vekslet mest: best i 2021 og 2024, svakest i 2022. Hittil i år er ODIN Norden ned 10,2 %, mot mellom −6,0 og +0,9 % for de andre og −3,1 % for kategorien.",
+      pc: {
+        norden: { p: ["Best av de fem i 2021 (25,7 %) og i 2024 (12,6 %).", "Stort, etablert fond (20,0 mrd. kr) med 11,3 % per år siden start i 1990."], m: ["Svakest hittil i år (−10,2 %). De største negative bidragene er DSV, Novo Nordisk og Munters.", "Størst fall i 2022 (−21,7 % mot −14,2 % for kategorien), og lengst tid tilbake til toppen (mars 2024)."] },
+        cww:    { p: ["Best i 2023 (27,1 %).", "Litt lavere honorar enn ODIN Norden (1,40 % mot 1,50 %)."], m: ["Lite fond (0,6 mrd. kr).", "Svakest i både 2024 og 2025 (7,2 % og 8,1 %), og lavest Sharpe (0,25)."] },
+        dn:     { p: ["Lavest honorar (0,85 %) og best hittil i år (0,9 %).", "Følger indeksen tettest (tracking error 4,72 %) og har høyest informasjonsrate (0,86)."], m: ["Lavest snitt per år i 2021–2025 (5,9 %), etter et svakt 2021 (7,1 % mot 18,8 % for kategorien).", "Under kategorisnittet fire av fem år."] },
+        hd:     { p: ["Høyest snitt per år (11,8 %), og over kategorisnittet fire av fem år.", "Minst fall i kalenderåret 2022 (−9,2 %) og høyest Sharpe (0,66)."], m: ["Konsentrert (25 aksjer) og langt fra indeksen (R² 42, tracking error 9,18 %).", "Svakest i 2023 (17,3 %)."] },
+        en:     { p: ["Nest høyest snitt per år (9,1 %).", "Minst fall fra topp til bunn (−16,6 %)."], m: ["Høyest andel industri av de fem (52 % av aksjene).", "Færrest positive måneder av de fem (31 av 57)."] }
+      },
+      port: "Fondene deler flere store posisjoner. Novo Nordisk er blant de ti største i ODIN Norden, DNB Norden, Holberg Norden og Eika Norden. ODIN Norden har Ringkjøbing Landbobank (5,29 %) og Protector Forsikring (4,96 %) som største posisjoner og mest i industri (37 %). Holberg Norden er konsentrert, med 25 aksjer og Sampo som største posisjon (8,08 %). Eika Norden og DNB Norden har Atlas Copco øverst og ligner hverandre mest (korrelasjon 0,96). Blant de ti største deler ODIN Norden tre selskaper med DNB Norden (Novo Nordisk, Atlas Copco og DSV, 12,9 prosentpoeng) og to med Holberg Norden og Eika Norden (9,2 prosentpoeng).",
+      meaningK: "Hva rådgiveren kan si til styret",
+      meaning: "Årets svakhet henger sammen med noen få store posisjoner: de fem svakeste bidragene, med DSV og Novo Nordisk størst, utgjør til sammen om lag 5,9 prosentpoeng. Over fem hele år ligger ODIN Norden på linje med kategorien, men bak Holberg Norden og Eika Norden, og fondet svinger mer og har hatt det største fallet. For en stiftelse med norske aksjer er rollen i porteføljen spredning: med like vekter i våre tre fond svinger porteføljen 11,4 % mot 13,7 % i snitt for fondene hver for seg. Det forutsetter lang horisont og et styre som tåler perioder som denne.",
+      notes: "Kategorisnittet er Morningstar-kategorien Norden. ODIN Norden måles mot VINX Benchmark Cap NOK. Risikomålene for de nordiske fondene er fra Morningstar-profilene (datert 09.–19.10.2026) og målt mot Morningstar Nordic Target Market Exposure NR SEK. Overlapp er regnet per selskap blant de ti største posisjonene hos Morningstar (DNB Norden per 31.08.2026, øvrige per 30.09.2026); Morningstar oppga ikke beholdninger for C WorldWide Norden. Morningstar oppgir 21,00 % for 2023 og 12,38 % for 2024 for ODIN Norden, mot 20,78 % og 12,58 % på odinfond.no."
+    }
+  ];
+
+  // ---------- hjelpere ----------
+  function pct(v, d) { var s = Math.abs(v).toFixed(d == null ? 2 : d).replace(".", ","); return (v < 0 ? "−" : "") + s + " %"; }
+  function geo(r) { var p = 1; r.forEach(function (x) { p *= 1 + x / 100; }); return (Math.pow(p, 1 / r.length) - 1) * 100; }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function link(key) { var s = SRC[key]; return '<li><a href="' + esc(s[1]) + '" target="_blank" rel="noopener">' + esc(s[0]) + '</a></li>'; }
+
+  // ---------- faner ----------
+  var tabs = Array.prototype.slice.call(document.querySelectorAll(".tab"));
+  function show(id, push) {
+    tabs.forEach(function (t) {
+      var on = t.getAttribute("aria-controls") === id;
+      t.setAttribute("aria-selected", on ? "true" : "false");
+      t.tabIndex = on ? 0 : -1;
+      document.getElementById(t.getAttribute("aria-controls")).hidden = !on;
+    });
+    if (push) { try { history.replaceState(null, "", "#" + id); } catch (e) {} }
+  }
+  tabs.forEach(function (t, i) {
+    t.addEventListener("click", function () { show(t.getAttribute("aria-controls"), true); });
+    t.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+        var n = tabs[(i + (e.key === "ArrowRight" ? 1 : tabs.length - 1)) % tabs.length];
+        n.focus(); show(n.getAttribute("aria-controls"), true);
+      }
+    });
+  });
+  var start = (location.hash || "").slice(1);
+  show(["mail", "sammenligning", "marked", "simulering"].indexOf(start) >= 0 ? start : "mail", false);
+
+  // ---------- diagram ----------
+  function chart(keys) {
+    var W = 760, H = 330, L = 52, R = 236, T = 18, B = 34;
+    var xs = [2020, 2021, 2022, 2023, 2024, 2025, 2025.75];
+    var series = keys.map(function (k, i) {
+      var f = F[k], v = [100];
+      f.r.forEach(function (x) { v.push(v[v.length - 1] * (1 + x / 100)); });
+      v.push(v[v.length - 1] * (1 + f.ytd / 100));
+      return { k: k, f: f, v: v, i: i };
+    });
+    var all = []; series.forEach(function (s) { all = all.concat(s.v); });
+    var lo = Math.floor(Math.min.apply(null, all) / 25) * 25, hi = Math.ceil(Math.max.apply(null, all) / 25) * 25;
+    if (lo > 75) lo = 75;
+    var X = function (x) { return L + (x - 2020) / (2025.75 - 2020) * (W - L - R); };
+    var Y = function (y) { return T + (hi - y) / (hi - lo) * (H - T - B); };
+    var peerColors = ["var(--peer1)", "var(--peer2)", "var(--peer3)", "var(--peer4)"], pi = 0;
+    var g = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Verdiutvikling for 100 kroner fra utgangen av 2020 til 30.09.2026">';
+    for (var t = lo; t <= hi; t += 25) {
+      g += '<line x1="' + L + '" x2="' + (W - R + 8) + '" y1="' + Y(t) + '" y2="' + Y(t) + '" stroke="var(--line)" stroke-width="1"/>';
+      g += '<text x="' + (L - 8) + '" y="' + (Y(t) + 4) + '" text-anchor="end" font-size="11.5" fill="var(--muted)">' + t + '</text>';
+    }
+    var xl = ["2020", "2021", "2022", "2023", "2024", "2025", "30.09.26"];
+    xs.forEach(function (x, i) { g += '<text x="' + X(x) + '" y="' + (H - 10) + '" text-anchor="middle" font-size="11.5" fill="var(--muted)">' + xl[i] + '</text>'; });
+    var ends = [];
+    series.slice().sort(function (a, b) { return (a.f.own ? 1 : 0) - (b.f.own ? 1 : 0); }).forEach(function (s) {
+      var col = s.f.own ? "var(--accent)" : s.f.cat ? "var(--cat)" : peerColors[pi++ % 4];
+      var w = s.f.own ? 3 : 1.75, dash = s.f.cat ? ' stroke-dasharray="5 4"' : "";
+      var d = s.v.map(function (y, i) { return (i ? "L" : "M") + X(xs[i]).toFixed(1) + " " + Y(y).toFixed(1); }).join(" ");
+      g += '<g><path d="' + d + '" fill="none" stroke="' + col + '" stroke-width="' + w + '"' + dash + ' stroke-linejoin="round"/>';
+      s.v.forEach(function (y, i) {
+        var tip = s.f.name + ", " + xl[i] + ": " + y.toFixed(1).replace(".", ",") + " kr";
+        g += '<circle cx="' + X(xs[i]) + '" cy="' + Y(y) + '" r="' + (s.f.own ? 3.5 : 2.5) + '" fill="' + col + '"><title>' + esc(tip) + '</title></circle>';
+      });
+      g += '</g>';
+      ends.push({ y: Y(s.v[s.v.length - 1]), label: s.f.name.replace(/ [A-C]$/, "") + "  " + s.v[s.v.length - 1].toFixed(0) + " kr", col: s.f.own ? "var(--ink)" : "var(--muted)", own: s.f.own });
+    });
+    ends.sort(function (a, b) { return a.y - b.y; });
+    for (var j = 1; j < ends.length; j++) if (ends[j].y - ends[j - 1].y < 16) ends[j].y = ends[j - 1].y + 16;
+    var over = ends.length ? ends[ends.length - 1].y - (H - B - 2) : 0;
+    if (over > 0) ends.forEach(function (e) { e.y -= over; });
+    ends.forEach(function (e) {
+      g += '<text x="' + (X(2025.75) + 12) + '" y="' + (e.y + 4) + '" font-size="12.5" font-weight="' + (e.own ? 700 : 400) + '" fill="' + e.col + '">' + esc(e.label) + '</text>';
+    });
+    return g + '</svg>';
+  }
+
+  // ---------- tabell ----------
+  function table(keys) {
+    var h = '<table><thead><tr><th>Fond</th>' + YEARS.map(function (y) { return '<th>' + y + '</th>'; }).join("") +
+      '<th>Snitt 2021–25</th><th>Hittil 2026</th><th>Honorar</th></tr></thead><tbody>';
+    var funds = keys.filter(function (k) { return !F[k].cat; });
+    var bestYear = YEARS.map(function (_, i) { return Math.max.apply(null, funds.map(function (k) { return F[k].r[i]; })); });
+    keys.forEach(function (k) {
+      var f = F[k], cls = f.own ? "own" : f.cat ? "cat" : "";
+      h += '<tr class="' + cls + '"><td>' + esc(f.name) + '</td>';
+      f.r.forEach(function (x, i) { h += '<td class="' + (x < 0 ? "neg " : "") + (!f.cat && x === bestYear[i] ? "best" : "") + '">' + pct(x, 1) + '</td>'; });
+      h += '<td>' + pct(geo(f.r), 1) + '</td><td class="' + (f.ytd < 0 ? "neg" : "") + '">' + pct(f.ytd, 1) + '</td><td>' + (f.fee || "") + '</td></tr>';
+    });
+    return h + '</tbody><caption>Utheving viser beste fond hvert år. Egne fond: faktaark og fondssider på odinfond.no. Øvrige: Morningstar (fondsprofiler og Morningstar.com). Hittil i år per 30.09.2026 for alle. Avrundet til én desimal.</caption></table>';
+  }
+
+  // ---------- risiko ----------
+  function num(v, d) { var s = Math.abs(v).toFixed(d).replace(".", ","); return (v < 0 ? "−" : "") + s; }
+  function rname(k) { return esc(F[k].name.replace(/ [A-C]$/, "")); }
+  var MN = ["jan.", "feb.", "mar.", "apr.", "mai", "jun.", "jul.", "aug.", "sep.", "okt.", "nov.", "des."];
+  function mlab(s) { return MN[+s.slice(0, 2) - 1] + " " + s.slice(3); }
+  function riskTable(keys) {
+    keys = keys.filter(function (k) { return RK[k]; });
+    var hd = ["Volatilitet", "Sharpe", "Beta", "R²", "Tracking error", "Inf.rate", "Alfa"];
+    var dec = [2, 2, 2, 1, 2, 2, 2], suf = [" %", "", "", "", " %", "", ""];
+    var best = [1, 5].map(function (c) { return Math.max.apply(null, keys.map(function (k) { return RK[k].ms[c]; })); });
+    var h = '<table><thead><tr><th>Fond</th>' + hd.map(function (x) { return '<th>' + x + '</th>'; }).join("") + '</tr></thead><tbody>';
+    keys.forEach(function (k) {
+      var m = RK[k].ms;
+      h += '<tr class="' + (F[k].own ? "own" : "") + '"><td>' + rname(k) + '</td>' + m.map(function (v, c) {
+        var b = (c === 1 && v === best[0]) || (c === 5 && v === best[1]);
+        return '<td class="' + (b ? "best" : "") + '">' + num(v, dec[c]) + suf[c] + '</td>';
+      }).join("") + '</tr>';
+    });
+    var nordic = keys.some(function (k) { return ["norden", "cww", "dn", "hd", "en"].indexOf(k) >= 0; });
+    var star = nordic ? " Tallene er fra Morningstar-profilene (datert 09.–19.10.2026)." : " Tallene er fra Morningstar.com. Tracking error og informasjonsrate er regnet fra Morningstars månedsdata med Morningstars metode, og stemmer med Morningstar-profilene der de finnes.";
+    return h + '</tbody><caption>Morningstar, tre år med månedlige data til 30.09.2026. Volatilitet er standardavvik per år. Beta, R², tracking error, informasjonsrate og alfa er målt mot Morningstars indeks for kategorien. Utheving viser høyeste Sharpe og informasjonsrate.' + star + '</caption></table>';
+  }
+  function ddTable(keys) {
+    keys = keys.filter(function (k) { return RK[k]; });
+    var h = '<table><thead><tr><th>Fond</th><th>Største fall</th><th>Fra topp</th><th>Til bunn</th><th>Tilbake på toppen</th><th>Verste måned</th><th>Positive mnd.</th><th>Nedside&shy;avvik</th></tr></thead><tbody>';
+    keys.forEach(function (k) {
+      var r = RK[k];
+      h += '<tr class="' + (F[k].own ? "own" : "") + '"><td>' + rname(k) + '</td><td class="neg">' + num(r.mdd, 1) + ' %</td><td>' + mlab(r.from) + '</td><td>' + mlab(r.to) + '</td><td>' + mlab(r.back) +
+        '</td><td class="neg">' + num(r.worst, 1) + ' % (' + mlab(r.worstM) + ')</td><td>' + r.pos + ' av ' + NMONTHS + '</td><td>' + num(r.down, 1) + ' %</td></tr>';
+    });
+    return h + '</tbody><caption>Regnet fra Morningstars månedsavkastning, 31.12.2021–30.09.2026 (57 måneder). Største fall er fra høyeste til laveste verdi ved månedsslutt; fall innenfor en måned kommer ikke med. Nedsideavvik regner bare de negative månedene (mål 0), per år.</caption></table>';
+  }
+  function corrTable(keys) {
+    var idx = keys.map(function (k) { return CK.indexOf(k); });
+    var h = '<table class="corr"><thead><tr><th></th>' + keys.map(function (k) { return '<th>' + esc(CSHORT[k]) + '</th>'; }).join("") + '</tr></thead><tbody>';
+    keys.forEach(function (k, a) {
+      h += '<tr class="' + (F[k].own ? "own " : "") + '"><td>' + esc(CSHORT[k]) + '</td>';
+      idx.forEach(function (j, b) {
+        var v = CORR[idx[a]][j], self = a === b;
+        var al = self ? 0 : Math.round(Math.max(v, 0) * 46);
+        var bg = self ? "" : ' style="background:color-mix(in srgb, var(--accent) ' + al + '%, transparent)"';
+        h += '<td class="' + (self ? "self" : "c") + '"' + bg + '>' + (self ? "–" : num(v, 2)) + '</td>';
+      });
+      h += '</tr>';
+    });
+    var extra = keys.length > 5 ? " ODIN Norge og SpareBank 1 Norge Verdi er tatt med for å vise samspillet med norske aksjer." : "";
+    return h + '</tbody><caption>Månedsavkastning januar 2022–september 2026 (57 måneder). Mørkere felt betyr at fondene svinger mer i takt. 1 er helt likt, 0 er ingen sammenheng.' + extra + '</caption></table>';
+  }
+  function rcBlock(ids) {
+    return ids.map(function (id) {
+      var p = RC[id], w = 100 / p.funds.length;
+      var rows = p.funds.map(function (k, i) {
+        return '<div class="rc-row"><span>' + esc(F[k].name.replace(/ [A-C]$/, "")) + '</span><div class="rc-bars">' +
+          '<div class="rc-bar"><small>Vekt</small><i style="width:' + w.toFixed(1) + '%"></i><b>' + num(w, 0) + ' %</b></div>' +
+          '<div class="rc-bar risk"><small>Risiko</small><i style="width:' + p.share[i] + '%"></i><b>' + num(p.share[i], 0) + ' %</b></div></div></div>';
+      }).join("");
+      var gain = p.wavg - p.vol;
+      return '<div class="rc-port"><h4>' + esc(p.title) + '</h4>' + rows +
+        '<p class="rc-sum">Porteføljen svinger <strong>' + num(p.vol, 1) + ' %</strong> per år mot ' + num(p.wavg, 1) + ' % i vektet snitt for fondene hver for seg. Spredningen tar bort <strong>' + num(gain, 1) + ' prosentpoeng</strong> av svingningene.</p></div>';
+    }).join("") + '<p class="fine" style="font-size:12.5px;color:var(--muted);margin:0">Risikobidrag er hvert fonds andel av porteføljens volatilitet, regnet fra månedsavkastning 2022–2026. Volatiliteten blir derfor noe annerledes enn Morningstars treårstall over.</p>';
+  }
+
+  // ---------- sammenligning ----------
+  var seg = document.getElementById("cmp-seg");
+  CMP.forEach(function (c, i) {
+    var b = document.createElement("button");
+    b.type = "button"; b.id = "seg-" + c.id; b.textContent = c.label;
+    b.setAttribute("aria-pressed", i === 0 ? "true" : "false");
+    b.addEventListener("click", function () { renderCmp(i); });
+    seg.appendChild(b);
+  });
+  function renderCmp(i) {
+    var c = CMP[i];
+    Array.prototype.forEach.call(seg.children, function (b, j) { b.setAttribute("aria-pressed", j === i ? "true" : "false"); });
+    document.getElementById("cmp-ask").textContent = c.ask;
+    document.getElementById("cmp-sources").innerHTML = c.sources.map(link).join("");
+    document.getElementById("cmp-title").textContent = c.title;
+    document.getElementById("cmp-summary").textContent = c.summary;
+    document.getElementById("cmp-chart").innerHTML = chart(c.funds);
+    document.getElementById("cmp-table").innerHTML = table(c.funds);
+    var pc = "";
+    Object.keys(c.pc).forEach(function (k) {
+      var f = F[k], x = c.pc[k];
+      pc += '<div class="pc' + (f.own ? " own" : "") + '"><h4>' + esc(f.name.replace(/ [A-C]$/, "")) + '</h4><ul>' +
+        x.p.map(function (t) { return '<li class="p"><b>+</b><span>' + esc(t) + '</span></li>'; }).join("") +
+        x.m.map(function (t) { return '<li class="m"><b>−</b><span>' + esc(t) + '</span></li>'; }).join("") + '</ul></div>';
+    });
+    document.getElementById("cmp-pc").innerHTML = pc;
+    document.getElementById("cmp-port").textContent = c.port;
+    document.getElementById("cmp-risk-text").textContent = c.risk;
+    document.getElementById("cmp-risk").innerHTML = riskTable(c.funds);
+    document.getElementById("cmp-dd").innerHTML = ddTable(c.funds);
+    document.getElementById("cmp-corr").innerHTML = corrTable(c.corr);
+    document.getElementById("cmp-rc").innerHTML = rcBlock(c.rc);
+    document.getElementById("cmp-meaning-k").textContent = c.meaningK;
+    document.getElementById("cmp-meaning").textContent = c.meaning;
+    document.getElementById("cmp-notes").textContent = c.notes + RISKNOTE + " Historisk avkastning er ingen garanti for fremtidig avkastning.";
+  }
+  renderCmp(0);
+
+  // ---------- porteføljesimulering ----------
+  // Finans Norge, avtale om avkastningsprognoser (rev. 04.02.2026): punkt 4 (satser, volatilitet, korrelasjon), punkt 5 (inflasjon), vedlegg 2 (formler).
+  var FN = { aks: { r: 4.5, s: 16, name: "Aksjer" }, obl: { r: 1.75, s: 6, name: "Obligasjoner" }, pm: { r: 1.0, s: 2, name: "Pengemarked" } };
+  var FNRHO = { "aks|obl": 0.1, "aks|pm": 0.1, "obl|pm": 0.5 };
+  var INFL = 2.0, ZV = 1.96;
+  // Kalenderår 2021–2025 fra fondssiden, hittil i år per 30.09.2026 og honorar (klasse C) fra faktaarket.
+  var OBL = { name: "ODIN Norsk Obligasjon C", r: [0.73, 0.25, 5.77, 6.01, 5.53], ytd: 3.46, fee: 0.40 };
+  var SIMF = ["norge", "sb1", "norden"];
+  var SIMFEE = { norge: 1.50, sb1: 1.50, norden: 1.50 };
+  var PRESETS = [
+    { label: "60 % aksjer i tre fond", w: { norge: 20, sb1: 20, norden: 20 } },
+    { label: "60 % aksjer, bare Norge", w: { norge: 30, sb1: 30, norden: 0 } },
+    { label: "30 % aksjer", w: { norge: 10, sb1: 10, norden: 10 } }
+  ];
+  var S = { w: { norge: 20, sb1: 20, norden: 20 }, v0: 100, T: 20, map: "obl" };
+  var NUMW = ["null", "ett", "to", "tre", "fire"];
+
+  function nf(v, d) { return new Intl.NumberFormat("nb-NO", { minimumFractionDigits: d, maximumFractionDigits: d }).format(v); }
+  function mk(v) { return nf(v, Math.abs(v) >= 20 ? 0 : 1); }
+  function ck(v) { return nf(v, Math.abs(v) >= 10 ? 1 : 2); }
+  function eqSum() { return S.w.norge + S.w.sb1 + S.w.norden; }
+  function rho(a, b) { if (a === b) return 1; var x = FNRHO[a + "|" + b]; return x != null ? x : FNRHO[b + "|" + a]; }
+  function fnStats(wa, wr, rc) {
+    var w = { aks: wa }; w[rc] = wr;
+    var cls = Object.keys(w), arith = 0, v = 0;
+    cls.forEach(function (c) { arith += w[c] * (FN[c].r + 0.5 * FN[c].s * FN[c].s / 100); });
+    cls.forEach(function (a) { cls.forEach(function (b) { v += w[a] * w[b] * FN[a].s * FN[b].s * rho(a, b); }); });
+    return { arith: arith, sd: Math.sqrt(v), geo: arith - 0.5 * v / 100 };
+  }
+  // Engangsbeløp: avkastning r + Z·σ/√t for observasjonsår t (vedlegg 2), kostnader trukket fra hvert år.
+  function simVal(o, t, z) {
+    if (t === 0) return o.v0;
+    return o.v0 * Math.pow((1 - o.k / 100) * (1 + (o.geo + z * o.sd / Math.sqrt(t)) / 100), t);
+  }
+  function model(map) {
+    var bw = 100 - eqSum(), st = fnStats(eqSum() / 100, bw / 100, map);
+    var k = (SIMF.reduce(function (a, f) { return a + S.w[f] * SIMFEE[f]; }, 0) + bw * OBL.fee) / 100;
+    var o = { map: map, sd: st.sd, geo: st.geo, arith: st.arith, k: k, v0: S.v0 };
+    o.net = ((1 - k / 100) * (1 + st.geo / 100) - 1) * 100;
+    o.lo = simVal(o, S.T, -ZV); o.ex = simVal(o, S.T, 0); o.hi = simVal(o, S.T, ZV);
+    o.cost = simVal({ v0: S.v0, k: 0, geo: st.geo, sd: st.sd }, S.T, 0) - o.ex;
+    return o;
+  }
+  function hist() {
+    var bw = 100 - eqSum(), es = eqSum();
+    var port = YEARS.map(function (_, i) { return (SIMF.reduce(function (a, f) { return a + S.w[f] * F[f].r[i]; }, 0) + bw * OBL.r[i]) / 100; });
+    var ytd = (SIMF.reduce(function (a, f) { return a + S.w[f] * F[f].ytd; }, 0) + bw * OBL.ytd) / 100;
+    var eq = es > 0 ? YEARS.map(function (_, i) { return SIMF.reduce(function (a, f) { return a + S.w[f] * F[f].r[i]; }, 0) / es; }) : null;
+    return { port: port, ytd: ytd, eq: eq };
+  }
+  function grow(r, v0) { var v = [v0]; r.forEach(function (x) { v.push(v[v.length - 1] * (1 + x / 100)); }); return v; }
+  function niceStep(raw) {
+    var m = Math.pow(10, Math.floor(Math.log10(raw))), n = raw / m;
+    return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 2.5 ? 2.5 : n <= 5 ? 5 : 10) * m;
+  }
+  function tickFmt(v, st) { var d = st >= 10 ? 0 : st >= 1 ? (Math.round(st) === st ? 0 : 1) : (Math.round(st * 10) === st * 10 ? 1 : 2); return nf(v, d); }
+  function placeLabels(ends, bottom) {
+    ends.sort(function (a, b) { return a.y - b.y; });
+    for (var j = 1; j < ends.length; j++) if (ends[j].y - ends[j - 1].y < 16) ends[j].y = ends[j - 1].y + 16;
+    var over = ends.length ? ends[ends.length - 1].y - bottom : 0;
+    if (over > 0) ends.forEach(function (e) { e.y -= over; });
+    return ends;
+  }
+  function tile(t) { return '<div class="tile"><small>' + esc(t[0]) + '</small><b>' + esc(t[1]) + '</b><span>' + esc(t[2]) + '</span></div>'; }
+
+  function fanChart(o, n) {
+    var W = 760, H = 330, L = 60, R = 190, T = 16, B = 34;
+    var lo = [], ex = [], hi = [];
+    for (var t = 0; t <= n; t++) { lo.push(simVal(o, t, -ZV)); ex.push(simVal(o, t, 0)); hi.push(simVal(o, t, ZV)); }
+    var mx = Math.max.apply(null, hi), st = niceStep(mx / 5), top = Math.ceil(mx / st) * st;
+    var X = function (t) { return L + t / n * (W - L - R); };
+    var Y = function (v) { return T + (top - v) / top * (H - T - B); };
+    var g = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Forventet verdi og 95 %-intervall over ' + n + ' år, mill. kr i dagens kroner">';
+    for (var i = 0; i * st <= top + st * 1e-6; i++) {
+      var v = i * st;
+      g += '<line x1="' + L + '" x2="' + (W - R + 8) + '" y1="' + Y(v) + '" y2="' + Y(v) + '" stroke="var(--line)" stroke-width="1"/>';
+      g += '<text x="' + (L - 8) + '" y="' + (Y(v) + 4) + '" text-anchor="end" font-size="11.5" fill="var(--muted)">' + tickFmt(v, st) + '</text>';
+    }
+    var xt = []; for (var a = 0; a <= n; a += 5) if (a === 0 || n - a >= 2 || a === n) xt.push(a);
+    if (xt[xt.length - 1] !== n) xt.push(n);
+    xt.forEach(function (a) { g += '<text x="' + X(a) + '" y="' + (H - 10) + '" text-anchor="middle" font-size="11.5" fill="var(--muted)">' + (a === 0 ? "I dag" : a + " år") + '</text>'; });
+    var line = function (arr) { return arr.map(function (v, t) { return (t ? "L" : "M") + X(t).toFixed(1) + " " + Y(v).toFixed(1); }).join(" "); };
+    var band = line(hi) + " " + lo.slice().reverse().map(function (v, j) { return "L" + X(n - j).toFixed(1) + " " + Y(v).toFixed(1); }).join(" ") + " Z";
+    g += '<path d="' + band + '" fill="var(--accent)" fill-opacity=".14" stroke="none"/>';
+    g += '<line x1="' + L + '" x2="' + X(n) + '" y1="' + Y(o.v0) + '" y2="' + Y(o.v0) + '" stroke="var(--muted)" stroke-width="1.25" stroke-dasharray="4 4"/>';
+    g += '<path d="' + line(hi) + '" fill="none" stroke="var(--accent)" stroke-opacity=".6" stroke-width="1.25"/>';
+    g += '<path d="' + line(lo) + '" fill="none" stroke="var(--accent)" stroke-opacity=".6" stroke-width="1.25"/>';
+    g += '<path d="' + line(ex) + '" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linejoin="round"/>';
+    xt.forEach(function (a) {
+      if (!a) return;
+      var tip = "Om " + a + " år: forventet " + mk(ex[a]) + " mill. kr, 95 %-intervall " + mk(lo[a]) + "–" + mk(hi[a]) + " mill. kr";
+      g += '<circle cx="' + X(a) + '" cy="' + Y(ex[a]) + '" r="3.5" fill="var(--accent)"><title>' + esc(tip) + '</title></circle>';
+    });
+    var ends = placeLabels([
+      { y: Y(hi[n]), label: "Øvre  " + mk(hi[n]), col: "var(--muted)", b: 400 },
+      { y: Y(ex[n]), label: "Forventet  " + mk(ex[n]), col: "var(--ink)", b: 700 },
+      { y: Y(lo[n]), label: "Nedre  " + mk(lo[n]), col: "var(--muted)", b: 400 },
+      { y: Y(o.v0), label: "Innskudd  " + mk(o.v0), col: "var(--muted)", b: 400 }
+    ], H - B - 2);
+    ends.forEach(function (e) { g += '<text x="' + (X(n) + 12) + '" y="' + (e.y + 4) + '" font-size="12.5" font-weight="' + e.b + '" fill="' + e.col + '">' + esc(e.label) + '</text>'; });
+    return g + '</svg>';
+  }
+
+  function histChart(series) {
+    var W = 760, H = 300, L = 56, R = 230, T = 16, B = 34, xs = [2020, 2021, 2022, 2023, 2024, 2025];
+    var all = []; series.forEach(function (s) { all = all.concat(s.v); });
+    var mn = Math.min.apply(null, all), mx = Math.max.apply(null, all);
+    var st = niceStep((mx - mn) / 4 || 1), lo = Math.floor(mn / st) * st, hi = Math.ceil(mx / st) * st;
+    if (hi <= lo) hi = lo + st;
+    var X = function (x) { return L + (x - 2020) / 5 * (W - L - R); };
+    var Y = function (y) { return T + (hi - y) / (hi - lo) * (H - T - B); };
+    var g = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Simulert verdiutvikling fra utgangen av 2020 til utgangen av 2025">';
+    for (var i = 0; lo + i * st <= hi + st * 1e-6; i++) {
+      var v = lo + i * st;
+      g += '<line x1="' + L + '" x2="' + (W - R + 8) + '" y1="' + Y(v) + '" y2="' + Y(v) + '" stroke="var(--line)" stroke-width="1"/>';
+      g += '<text x="' + (L - 8) + '" y="' + (Y(v) + 4) + '" text-anchor="end" font-size="11.5" fill="var(--muted)">' + tickFmt(v, st) + '</text>';
+    }
+    xs.forEach(function (x) { g += '<text x="' + X(x) + '" y="' + (H - 10) + '" text-anchor="middle" font-size="11.5" fill="var(--muted)">' + x + '</text>'; });
+    var cols = ["var(--accent)", "var(--peer1)", "var(--peer2)"], ends = [];
+    series.map(function (s, i) { return { s: s, i: i }; }).reverse().forEach(function (o) {
+      var s = o.s, col = cols[o.i], own = o.i === 0;
+      var d = s.v.map(function (y, j) { return (j ? "L" : "M") + X(xs[j]).toFixed(1) + " " + Y(y).toFixed(1); }).join(" ");
+      g += '<path d="' + d + '" fill="none" stroke="' + col + '" stroke-width="' + (own ? 3 : 1.75) + '" stroke-linejoin="round"/>';
+      s.v.forEach(function (y, j) { g += '<circle cx="' + X(xs[j]) + '" cy="' + Y(y) + '" r="' + (own ? 3.5 : 2.5) + '" fill="' + col + '"><title>' + esc(s.name + ", " + xs[j] + ": " + mk(y) + " mill. kr") + '</title></circle>'; });
+      ends.push({ y: Y(s.v[5]), label: s.name + "  " + mk(s.v[5]), col: own ? "var(--ink)" : "var(--muted)", b: own ? 700 : 400 });
+    });
+    placeLabels(ends, H - B - 2).forEach(function (e) { g += '<text x="' + (X(2025) + 12) + '" y="' + (e.y + 4) + '" font-size="12.5" font-weight="' + e.b + '" fill="' + e.col + '">' + esc(e.label) + '</text>'; });
+    return g + '</svg>';
+  }
+
+  var rowsEl = document.getElementById("sim-rows");
+  rowsEl.innerHTML = SIMF.map(function (f) {
+    return '<div class="sim-row"><label for="w-' + f + '">' + esc(F[f].name.replace(/ [A-C]$/, "")) + '<small>Aksjefond · honorar ' + nf(SIMFEE[f], 2) + ' %</small></label>' +
+      '<input type="range" id="w-' + f + '" min="0" max="100" step="5" value="' + S.w[f] + '"><output id="o-' + f + '" for="w-' + f + '"></output></div>';
+  }).join("") +
+    '<div class="sim-row"><span class="nm">ODIN Norsk Obligasjon<small>Rentefond · honorar ' + nf(OBL.fee, 2) + ' % · får resten</small></span><div class="sim-fill" aria-hidden="true"><i id="b-obl"></i></div><output id="o-obl"></output></div>';
+  SIMF.forEach(function (f) {
+    document.getElementById("w-" + f).addEventListener("input", function (e) {
+      var v = +e.target.value, other = eqSum() - S.w[f];
+      if (v + other > 100) { v = 100 - other; e.target.value = v; }
+      S.w[f] = v; renderSim();
+    });
+  });
+  var presEl = document.getElementById("sim-presets");
+  PRESETS.forEach(function (p) {
+    var b = document.createElement("button"); b.type = "button"; b.textContent = p.label;
+    b.addEventListener("click", function () { SIMF.forEach(function (f) { S.w[f] = p.w[f]; document.getElementById("w-" + f).value = p.w[f]; }); renderSim(); });
+    presEl.appendChild(b);
+  });
+  var mapEl = document.getElementById("sim-map");
+  [["obl", "Obligasjoner"], ["pm", "Pengemarked"]].forEach(function (m) {
+    var b = document.createElement("button"); b.type = "button"; b.textContent = m[1]; b.setAttribute("data-map", m[0]);
+    b.addEventListener("click", function () { S.map = m[0]; renderSim(); });
+    mapEl.appendChild(b);
+  });
+  document.getElementById("sim-amount").addEventListener("input", function (e) {
+    var v = parseFloat(String(e.target.value).replace(",", "."));
+    if (isFinite(v) && v >= 1 && v <= 100000) { S.v0 = v; renderSim(); }
+  });
+  document.getElementById("sim-years").addEventListener("input", function (e) { S.T = +e.target.value; renderSim(); });
+  document.getElementById("sim-sources").innerHTML = ["fnAvtale", "fOblig", "pOblig", "fNorge", "pNorge", "fSb1", "pSb1", "fNorden", "pNorden"].map(link).join("");
+
+  function renderSim() {
+    var es = eqSum(), bw = 100 - es, m = model(S.map), alt = model(S.map === "obl" ? "pm" : "obl"), h = hist();
+    SIMF.forEach(function (f) { document.getElementById("o-" + f).textContent = S.w[f] + " %"; });
+    document.getElementById("o-obl").textContent = bw + " %";
+    document.getElementById("b-obl").style.width = bw + "%";
+    document.getElementById("sim-years-out").textContent = S.T + " år";
+    Array.prototype.forEach.call(presEl.children, function (b, i) {
+      var p = PRESETS[i].w; b.setAttribute("aria-pressed", SIMF.every(function (f) { return p[f] === S.w[f]; }) ? "true" : "false");
+    });
+    Array.prototype.forEach.call(mapEl.children, function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-map") === S.map ? "true" : "false"); });
+
+    var nF = SIMF.filter(function (f) { return S.w[f] > 0; }).length + (bw > 0 ? 1 : 0);
+    document.getElementById("sim-summary").textContent = "Forslaget har " + es + " % aksjer og " + bw + " % renter " + (nF === 1 ? "i ett av våre fond" : "fordelt på " + NUMW[nF] + " av våre fond") +
+      ", med et vektet honorar på " + pct(m.k, 2) + " per år. Med Finans Norges forutsetninger er forventet realavkastning " + pct(m.net, 2) + " per år etter kostnader. Om " + S.T +
+      " år er forventet verdi " + mk(m.ex) + " mill. kr i dagens kroner, med et 95 %-intervall fra " + mk(m.lo) + " til " + mk(m.hi) + " mill. kr.";
+
+    // fordeling og kostnader
+    var arows = SIMF.map(function (f) { return { name: F[f].name, w: S.w[f], cls: "Aksjer", fee: SIMFEE[f] }; })
+      .concat([{ name: OBL.name, w: bw, cls: FN[S.map].name, fee: OBL.fee }]);
+    document.getElementById("sim-alloc").innerHTML = '<table><thead><tr><th>Fond</th><th>Vekt</th><th>Klasse i modellen</th><th>Honorar</th><th>Kostnad første år</th></tr></thead><tbody>' +
+      arows.map(function (r) { return '<tr class="' + (r.w ? "" : "dim") + '"><td>' + esc(r.name) + '</td><td>' + r.w + ' %</td><td>' + r.cls + '</td><td>' + pct(r.fee, 2) + '</td><td>' + ck(S.v0 * r.w / 100 * r.fee / 100) + ' mill. kr</td></tr>'; }).join("") +
+      '<tr class="sum"><td>Porteføljen</td><td>100 %</td><td></td><td>' + pct(m.k, 2) + '</td><td>' + ck(S.v0 * m.k / 100) + ' mill. kr</td></tr></tbody>' +
+      '<caption>Forvaltningshonorar for andelsklasse C fra faktaarkene per 30.09.2026. Kostnad første år er beløp × vekt × honorar. For større investorer finnes andelsklasser med lavere honorar.</caption></table>';
+
+    // anslag fremover
+    document.getElementById("sim-fwarn").textContent = "Anslag er ingen garanti og ikke en pålitelig indikator for fremtidig avkastning. Utfallet kan også havne utenfor intervallet." +
+      (S.T < 20 ? " Satsene er laget for horisonter på minst 20 år, og avtalen ber om at lavere rentesatser vurderes for kortere horisonter." : "");
+    document.getElementById("sim-tiles").innerHTML = [
+      ["Forventet realavkastning", pct(m.net, 2), "per år etter kostnader på " + pct(m.k, 2)],
+      ["Forventet verdi om " + S.T + " år", mk(m.ex) + " mill. kr", "95 %-intervall " + mk(m.lo) + "–" + mk(m.hi) + " mill. kr, i dagens kroner"],
+      ["Volatilitet i modellen", pct(m.sd, 1), "standardavvik per år"],
+      ["Kostnadenes effekt", "−" + mk(m.cost) + " mill. kr", "på forventet verdi om " + S.T + " år"]
+    ].map(tile).join("");
+    document.getElementById("sim-fan").innerHTML = fanChart(m, S.T);
+    var pts = [1, 5, 10, 20, 30].filter(function (t) { return t <= S.T; });
+    if (pts.indexOf(S.T) < 0) pts.push(S.T);
+    document.getElementById("sim-ftbl").innerHTML = '<table><thead><tr><th>Tid</th><th>Nedre, 95 %</th><th>Forventet</th><th>Øvre, 95 %</th><th>Forventet, nominelt</th></tr></thead><tbody>' +
+      pts.map(function (t) {
+        var e = simVal(m, t, 0);
+        return '<tr class="' + (t === S.T ? "own" : "") + '"><td>Om ' + t + ' år</td><td>' + mk(simVal(m, t, -ZV)) + '</td><td>' + mk(e) + '</td><td>' + mk(simVal(m, t, ZV)) + '</td><td>' + mk(e * Math.pow(1 + INFL / 100, t)) + '</td></tr>';
+      }).join("") + '</tbody><caption>Mill. kr etter kostnader. Realverdier i dagens kroner; nominell verdi er forventet realverdi med 2,0 % inflasjon per år lagt til (avtalens punkt 5).</caption></table>';
+
+    // alternativ klasse for rentefondet (punkt 1.2)
+    var altEl = document.getElementById("sim-alt"), altTx = document.getElementById("sim-alt-text");
+    if (bw === 0) {
+      altTx.textContent = "Porteføljen har ingen renter, så klassen for rentefondet påvirker ikke anslaget.";
+      altEl.innerHTML = "";
+    } else {
+      altTx.textContent = "ODIN Norsk Obligasjon har kort rentebinding (durasjon 0,32) og har svingt langt mindre enn obligasjonsklassen i modellen: fondssiden oppgir standardavvik på 1,26 % over tre år og 1,52 % over fem år, mot 6 % for klassen. Når et fond avviker fra klassen, ber avtalen om alternative anslag (punkt 1.2). Med rentefondet som " +
+        FN[alt.map].name.toLowerCase() + " blir forventet realavkastning " + pct(alt.net, 2) + " i stedet for " + pct(m.net, 2) + ", og volatiliteten " + pct(alt.sd, 1) + " i stedet for " + pct(m.sd, 1) + ".";
+      altEl.innerHTML = '<table><thead><tr><th>Rentefondet som</th><th>Sats / volatilitet</th><th>Forventet per år</th><th>Volatilitet</th><th>Forventet om ' + S.T + ' år</th><th>95 %-intervall</th></tr></thead><tbody>' +
+        (S.map === "obl" ? [m, alt] : [alt, m]).map(function (o) {
+          return '<tr class="' + (o.map === S.map ? "own" : "") + '"><td>' + FN[o.map].name + '</td><td>' + pct(FN[o.map].r, 2) + ' / ' + pct(FN[o.map].s, 0) + '</td><td>' + pct(o.net, 2) + '</td><td>' + pct(o.sd, 1) + '</td><td>' + mk(o.ex) + ' mill. kr</td><td>' + mk(o.lo) + '–' + mk(o.hi) + ' mill. kr</td></tr>';
+        }).join("") + '</tbody><caption>Forventet avkastning er realavkastning per år etter kostnader. Beløp i dagens kroner. Valgt klasse er uthevet.</caption></table>';
+    }
+
+    // simulert historikk
+    var pv = grow(h.port, S.v0), gp = geo(h.port), wi = h.port.indexOf(Math.min.apply(null, h.port)), bi = h.port.indexOf(Math.max.apply(null, h.port));
+    document.getElementById("sim-htiles").innerHTML = [
+      ["Snitt per år 2021–2025", pct(gp, 2), "simulert, etter fondenes kostnader"],
+      ["Svakeste år: " + YEARS[wi], pct(h.port[wi], 1), "beste år: " + pct(h.port[bi], 1) + " i " + YEARS[bi]],
+      ["Verdi ved utgangen av 2025", mk(pv[5]) + " mill. kr", "fra " + mk(S.v0) + " mill. kr ved utgangen av 2020"],
+      ["Hittil i 2026", pct(h.ytd, 1), "til 30.09.2026, ikke et helt år"]
+    ].map(tile).join("");
+    document.getElementById("sim-hist-k").textContent = "Verdien av " + mk(S.v0) + " mill. kr investert ved utgangen av 2020";
+    var ser = [{ name: "Porteføljen", v: pv }];
+    if (h.eq && bw > 0) ser.push({ name: "Aksjedelen alene", v: grow(h.eq, S.v0) });
+    if (bw > 0 && es > 0) ser.push({ name: "ODIN Norsk Obligasjon", v: grow(OBL.r, S.v0) });
+    document.getElementById("sim-hist").innerHTML = histChart(ser);
+    var hrows = [{ name: "Porteføljen", w: 100, r: h.port, ytd: h.ytd, own: true }]
+      .concat(SIMF.map(function (f) { return { name: F[f].name.replace(/ [A-C]$/, ""), w: S.w[f], r: F[f].r, ytd: F[f].ytd }; }))
+      .concat([{ name: OBL.name.replace(/ [A-C]$/, ""), w: bw, r: OBL.r, ytd: OBL.ytd }]);
+    document.getElementById("sim-htbl").innerHTML = '<table class="tight"><thead><tr><th>Fond (klasse C)</th><th>Vekt</th>' + YEARS.map(function (y) { return '<th>' + y + '</th>'; }).join("") + '<th>Snitt</th><th>Hittil 2026</th></tr></thead><tbody>' +
+      hrows.map(function (r) {
+        return '<tr class="' + (r.own ? "own" : r.w ? "" : "dim") + '"><td>' + esc(r.name) + '</td><td>' + r.w + ' %</td>' + r.r.map(function (x) { return '<td class="' + (x < 0 ? "neg" : "") + '">' + pct(x, 1) + '</td>'; }).join("") +
+          '<td>' + pct(geo(r.r), 1) + '</td><td class="' + (r.ytd < 0 ? "neg" : "") + '">' + pct(r.ytd, 1) + '</td></tr>';
+      }).join("") + '</tbody><caption>Kalenderårsavkastning etter fondenes kostnader fra fondssidene på odinfond.no, hittil i år per 30.09.2026 fra faktaarkene. Porteføljen er rebalansert til målvektene ved hvert årsskifte. Snitt er geometrisk snitt av 2021–2025. Avrundet til én desimal.</caption></table>';
+
+    // hva rådgiveren kan si
+    var p22 = h.port[1], e22 = h.eq ? h.eq[1] : null;
+    var tx = "Med Finans Norges forutsetninger er forventet realavkastning " + pct(m.net, 2) + " per år etter kostnader. Om " + S.T + " år er forventet verdi " + mk(m.ex) +
+      " mill. kr i dagens kroner, og 95 %-intervallet går fra " + mk(m.lo) + " til " + mk(m.hi) + " mill. kr.";
+    if (m.lo < S.v0) tx += " I den svake enden av intervallet er porteføljen verdt mindre enn i dag, målt i dagens kroner.";
+    if (es > 0) tx += " Anslaget skiller ikke mellom aksjefondene, så valget av aksjefond påvirker det bare gjennom kostnadene.";
+    tx += " Kostnadene på " + pct(m.k, 2) + " per år er om lag " + ck(S.v0 * m.k / 100) +
+      " mill. kr det første året, og de reduserer forventet verdi om " + S.T + " år med " + mk(m.cost) + " mill. kr.";
+    if (bw > 0 && e22 != null && e22 < 0 && p22 > e22) tx += " I den simulerte historikken dempet rentedelen fallet i 2022: porteføljen endte på " + pct(p22, 1) + ", mot " + pct(e22, 1) + " for aksjedelen alene.";
+    document.getElementById("sim-meaning").textContent = tx;
+  }
+
+  document.getElementById("sim-notes").innerHTML = [
+    "Satsene er fra Finans Norges avtale om avkastningsprognoser (revidert 04.02.2026, i kraft 11.02.2026), som er laget for pensjonsleverandørenes prognoser. Avtalen binder ikke ODIN, men er brukt som en nøytral og offentlig standard.",
+    "Forventet realavkastning per år (geometrisk): aksjer 4,5 %, obligasjoner 1,75 % og pengemarked 1,0 %. Volatilitet 16 %, 6 % og 2 %. Korrelasjon 0,1 mellom aksjer og hver av renteklassene, og 0,5 mellom obligasjoner og pengemarked. Inflasjon 2,0 %.",
+    "Porteføljens avkastning og volatilitet er regnet med formlene i avtalens vedlegg 2. 95 %-intervallet bruker ±1,96 standardavvik delt på kvadratroten av antall år, og regnes på nytt for hvert år. Kostnadene trekkes fra hvert år.",
+    "Alle aksjefondene, også ODIN Norden med nordiske aksjer, ligger i aksjeklassen. Satsene er generelle og fanger ikke forskjeller mellom fond.",
+    "Satsene er historiske snitt laget for horisonter på minst 20 år. For kortere horisonter, og for de første årene, ber avtalen selskapene vurdere lavere satser for pengemarked og obligasjoner. Det er ikke gjort her.",
+    "Kostnader: forvaltningshonorar for andelsklasse C fra faktaarkene, 1,50 % for aksjefondene og 0,40 % for ODIN Norsk Obligasjon. For større investorer finnes andelsklasser med lavere honorar, for eksempel SpareBank 1 Norge Verdi B med 1,00 %. Transaksjonskostnader i fondene og skatt er ikke med.",
+    "ODIN Norsk Obligasjon: fondssiden oppgir standardavvik på 1,26 % over tre år og 1,52 % over fem år, faktaarket 0,52 % over tre år. Alle tallene er langt under obligasjonsklassens 6 %, og derfor vises også anslaget med rentefondet som pengemarked.",
+    "Den simulerte historikken bruker kalenderårsavkastning fra fondssidene, etter fondenes kostnader, med rebalansering til målvektene ved hvert årsskifte. Skatt og handelskostnader ved rebalansering er ikke med. Historikken vises for seg og er ikke brukt i anslaget.",
+    "Oppsettet følger prinsippene i MiFID II for simulert historikk og fremtidig avkastning (forordning 2017/565 art. 44). Compliance må godkjenne det før det brukes overfor kunder."
+  ].map(function (t) { return "<li>" + esc(t) + "</li>"; }).join("");
+  renderSim();
+
+  // ---------- kildeliste ----------
+  document.getElementById("all-sources").innerHTML = Object.keys(SRC).map(link).join("");
+  document.getElementById("n-src").textContent = Object.keys(SRC).length;
+
+  // ---------- kopier e-post ----------
+  var toast = document.getElementById("toast"), tt;
+  function say(m) { toast.textContent = m; toast.hidden = false; clearTimeout(tt); tt = setTimeout(function () { toast.hidden = true; }, 2200); }
+  document.getElementById("copy-mail").addEventListener("click", function () {
+    var el = document.getElementById("mail-doc");
+    var text = el.innerText;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { say("Teksten er kopiert"); }, function () { selectIt(el); });
+    } else { selectIt(el); }
+  });
+  function selectIt(el) {
+    try { var r = document.createRange(); r.selectNodeContents(el); var s = window.getSelection(); s.removeAllRanges(); s.addRange(r); say("Teksten er markert. Kopier med Ctrl+C eller Cmd+C."); } catch (e) {}
+  }
+})();
+</script>
+</body>
+</html>
